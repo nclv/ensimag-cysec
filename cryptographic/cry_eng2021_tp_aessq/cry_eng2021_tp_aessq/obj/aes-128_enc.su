@@ -1,0 +1,6 @@
+src/aes-128_enc.c:20:9:xtime	32	static
+src/aes-128_enc.c:36:6:aes_round	128	static
+src/aes-128_enc.c:99:6:next_aes128_round_key	32	static
+src/aes-128_enc.c:124:6:prev_aes128_round_key	32	static
+src/aes-128_enc.c:148:6:aes128_enc	128	static
+src/aes-128_enc.c:175:5:main	4304	static
