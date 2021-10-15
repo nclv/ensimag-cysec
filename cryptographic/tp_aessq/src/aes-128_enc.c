@@ -8,6 +8,7 @@
 #include "aes-128_enc.h"
 #include "utils.h"
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,7 +23,21 @@ uint8_t xtime(uint8_t p) {
 
 	m ^= 1;
 	m -= 1;
-	m &= 0x1B; // 0x7B for X8 + X6 + X5 + X4 + X3 + X + 1
+	m &= 0x1B;
+
+	return ((p << 1) ^ m);
+}
+
+/*
+ * Constant-time ``broadcast-based'' multiplication by $a$ in $F_2[X]/X^8 + X^6 + X^5 + X^4
+ * + X^3 + X + 1$
+ */
+uint8_t xtime_variant(uint8_t p) {
+	uint8_t m = p >> 7;
+
+	m ^= 1;
+	m -= 1;
+	m &= 0x7B;
 
 	return ((p << 1) ^ m);
 }
@@ -151,6 +166,7 @@ void aes128_enc(uint8_t block[AES_BLOCK_SIZE],
 	uint8_t ekey[32];
 	int i, pk, nk;
 
+	// AddRoundKey
 	for (i = 0; i < 16; i++) {
 		block[i] ^= key[i];
 		ekey[i] = key[i];
@@ -170,6 +186,29 @@ void aes128_enc(uint8_t block[AES_BLOCK_SIZE],
 	} else {
 		aes_round(block, ekey + nk, 16);
 	}
+}
+
+/*
+ * Generate a random lambda set.
+ */
+int build_random_lambda_set(
+	uint8_t lambda_set[AES_BLOCK_SIZE * AES_BLOCK_SIZE][AES_BLOCK_SIZE]) {
+	uint8_t c;
+	int err = random_byte(&c);
+	if (err == -1) {
+		return -1;
+	}
+
+	uint8_t init_vector[AES_BLOCK_SIZE] = {c, c, c, c, c, c, c, c,
+										   c, c, c, c, c, c, c, c};
+	for (size_t i = 0; i < AES_BLOCK_SIZE * AES_BLOCK_SIZE; i++) {
+		for (size_t j = 0; j < AES_BLOCK_SIZE; ++j) {
+			lambda_set[i][j] = init_vector[j];
+		}
+		lambda_set[i][0] = i;
+	}
+
+	return 0;
 }
 
 int main(int argc, char **argv) {
@@ -199,6 +238,9 @@ int main(int argc, char **argv) {
 	const uint8_t key[AES_128_KEY_SIZE] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae,
 										   0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88,
 										   0x09, 0xcf, 0x4f, 0x3c};
+
+	int err = random_key(key);
+
 	printf("Block and key (before) :\n");
 	print_array(block);
 	print_array(key);
@@ -236,17 +278,108 @@ int main(int argc, char **argv) {
 	xor_array(enc1, plaintext, xored);
 	print_array(xored);
 
-	// Generate the lambda set
-	uint8_t lambda[AES_BLOCK_SIZE * AES_BLOCK_SIZE][AES_BLOCK_SIZE] = {{0}};
-	uint8_t c = 5;
-	uint8_t dumb[AES_BLOCK_SIZE] = {c, c, c, c, c, c, c, c, c, c, c, c, c, c, c, c};
-	for (size_t i = 0; i < AES_BLOCK_SIZE*AES_BLOCK_SIZE; i++) {
-		for (size_t j = 0; j < AES_BLOCK_SIZE; ++j) {
-			lambda[i][j] = dumb[j];
+	// Counts the occurence of possible key bytes (when sum is equal to zero)
+	size_t key_bytes_counter[AES_BLOCK_SIZE][AES_BLOCK_SIZE * AES_BLOCK_SIZE] =
+		{{0}};
+	size_t possible_key_byte_count[AES_BLOCK_SIZE] = {0};
+	uint8_t decoded_key[AES_BLOCK_SIZE] = {0};
+	uint8_t lambda_set[AES_BLOCK_SIZE * AES_BLOCK_SIZE][AES_BLOCK_SIZE] = {{0}};
+
+	size_t key_bytes_guessed = 0;
+	while (key_bytes_guessed < AES_BLOCK_SIZE) {
+		// Generate the lambda set
+		int err = build_random_lambda_set(lambda_set);
+
+		printf("Lambda :\n");
+		print_array2d(lambda_set);
+
+		// Encode the lambda set
+		for (size_t i = 0; i < AES_BLOCK_SIZE * AES_BLOCK_SIZE; ++i) {
+			aes128_enc(lambda_set[i], key, 4, 0); // encode 3 1/2 rounds
 		}
-		lambda[i][0] = i;
+
+		printf("Lambda encrypted :\n");
+		print_array2d(lambda_set);
+
+		int sum;
+		size_t key_byte_count;
+		uint8_t last_key_byte;
+		for (size_t j = 0; j < AES_BLOCK_SIZE; ++j) {
+			if (possible_key_byte_count[j] == 1) {
+				continue;
+			}
+
+			printf("AES block index : %zu\n", j);
+			key_byte_count = 0;
+			for (uint16_t key_byte = 0;
+				 key_byte < AES_BLOCK_SIZE * AES_BLOCK_SIZE; ++key_byte) {
+				sum = 0;
+
+				for (size_t i = 0; i < AES_BLOCK_SIZE * AES_BLOCK_SIZE; ++i) {
+					// Reverse AddRoundKey and SubBytes
+					// No need to reverse ShiftRow
+					sum ^= Sinv[lambda_set[i][j] ^ key_byte];
+				}
+
+				if (sum == 0) {
+					printf("Zero sum for key byte %x \n", key_byte);
+					key_bytes_counter[j][key_byte]++;
+					key_byte_count++;
+					last_key_byte = key_byte;
+				}
+			}
+
+			printf("Possible keys count : %zu \n", key_byte_count);
+			if (key_byte_count == 1) {
+				decoded_key[j] = last_key_byte;
+				key_bytes_guessed++;
+			} else {
+				if (possible_key_byte_count[j] != 0) {
+					size_t max = 0;
+					bool max_unique = true;
+					uint8_t guessed_key_byte;
+					for (size_t key_byte = 0;
+						 key_byte < AES_BLOCK_SIZE * AES_BLOCK_SIZE;
+						 ++key_byte) {
+						if (key_bytes_counter[j][key_byte] > max) {
+							max = key_bytes_counter[j][key_byte];
+							guessed_key_byte = key_byte;
+							max_unique = true;
+						} else if (key_bytes_counter[j][key_byte] == max) {
+							max_unique = false;
+						}
+					}
+
+					if (max_unique) {
+						decoded_key[j] = guessed_key_byte;
+						key_byte_count = 1;
+						key_bytes_guessed++;
+					}
+				}
+			}
+
+			possible_key_byte_count[j] = key_byte_count;
+		}
 	}
 
-	printf("Lambda :\n");
-	print_array2d(lambda);
+	printf("Key : \n");
+	print_array(key);
+
+	printf("3rd round decoded key : \n");
+	print_array(decoded_key);
+
+	printf("3rd round key : \n");
+	next_aes128_round_key(key, next_key, 0);
+	next_aes128_round_key(next_key, key, 1);
+	next_aes128_round_key(key, next_key, 2);
+	next_aes128_round_key(next_key, key, 3);
+	print_array(key);
+
+	prev_aes128_round_key(decoded_key, next_key, 3);
+	prev_aes128_round_key(next_key, decoded_key, 2);
+	prev_aes128_round_key(decoded_key, next_key, 1);
+	prev_aes128_round_key(next_key, decoded_key, 0);
+
+	printf("Decoded key : \n");
+	print_array(decoded_key);
 }
