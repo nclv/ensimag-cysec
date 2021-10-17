@@ -11,6 +11,7 @@ Implement the inverse key schedule.
 In the function, we begin to look at the most significant bit to know if the multiplication will result in a number which are not in the field.
 So, it the most significant bit is 0, we just need to shift to the left p (so, m=0). In the other case, we need to shift to the left p and to compute modulo Q, that means to xor Q to (p << 1) (so, m=0x1B = the reprensentation of Q).
 
+```C
 uint8_t xtime(uint8_t p) {
 	uint8_t m = p >> 7;
 
@@ -20,6 +21,7 @@ uint8_t xtime(uint8_t p) {
 
 	return ((p << 1) ^ m);
 }
+```
 
 **Theoric:**
 P = p_7 X⁷ + p_6 X⁶ + p_5 X⁵ + p_4 X⁴ + p_3 X³ + p_2 X² + p_1 X + p_0
@@ -32,7 +34,7 @@ Else:
 
 **With the algorithm:**
 If p_7 =1:
-    ```
+    ```C
     uint8_t m = p >> 7;  // m=1
 
 	m ^= 1;  // m=0
@@ -42,7 +44,7 @@ If p_7 =1:
 	return ((p << 1) ^ m);  // return P*X + Q
     ```
 Else:
-    ```
+    ```C
     uint8_t m = p >> 7;  // m=0
 
 	m ^= 1;  // m=1
@@ -55,7 +57,7 @@ Else:
 **Tests:**
 With made two tests : one for a polynome with the the most significant bit egal to 0 and one one for a polynome with the the most significant bit egal to 1.
 
-```
+```C
 void question1() {
 	printf("-- Question 1 : Verification of the xtime function --\n");
 	// Test with P = X + 1
@@ -70,7 +72,7 @@ void question1() {
 ```
 
 Result :
-```
+```bash
 -- Question 1 : Verification of the xtime function --
 Expected result : 0x6. Result : 0x6.
 Expected result : 0x2D. Result : 0x2d.
@@ -79,7 +81,7 @@ Expected result : 0x2D. Result : 0x2d.
 **Variant of xtime**
 So, to write the multiplication by x for a different representation of F_2⁸, we just need to replace the value 0x1B by the representation of Q over the new field $F_2[X]/Q, i.e. '7B' for Q = X^8 + X^6 + X^5 + X^4 + X^3 + X + 1 for instance.
 
-```
+```C
 uint8_t xtime_variant(uint8_t p) {
 	uint8_t m = p >> 7;
 
@@ -92,7 +94,7 @@ uint8_t xtime_variant(uint8_t p) {
 ```
 
 ### Q2.
-See code (function next_aes128_round_key for the implementation and the function question2 for the tests with the test values provided in the standard document).
+See code (function `next_aes128_round_key` for the implementation and the function question2 for the tests with the test values provided in the standard document).
 
 ### Q3.
 We need k1 != k2 because otherwise xored result is an array of zeros. In fact, if k_1 = k_2, E(k_1, x)=E(k_2, x), so F(k_1||k_2, x) = E(k_1, x) xor E(k_2, x) = E(k_1, x) xor E(k_1, x) = 0.
@@ -111,7 +113,7 @@ The 3-round square distinguisher for such an E also works for the corresponding 
 Test program :
 We test that the 3-round square distinguisher for such an E also works for the corresponding F by computing the encryption of a lambda set and xoring the encrypted lambda set for each coordinate :
 
-```
+```C
 uint8_t lambda_set[AES_LAMBDA_SET_SIZE][AES_BLOCK_SIZE];
 uint8_t enc_lambda_set[AES_LAMBDA_SET_SIZE][AES_BLOCK_SIZE];
 uint8_t sum_coordinates[AES_BLOCK_SIZE] = {0};
@@ -127,14 +129,15 @@ printf("Verification of the distinguisher's property (xor coordinates for a lamb
 print_array(sum_coordinates);
 ```
 
-See the function f_construction for the implementation of the keyed function F and the function question3 for the test with k_1=k_2 and the verification of the distinguisher property on a random lambda set.
+See the function `f_construction` for the implementation of the keyed function F and the function question3 for the test with k_1=k_2 and the verification of the distinguisher property on a random lambda set.
 
 
 ## Exercice 2: Key-recovery attack for 3¹/²-round AES
 
 ### Q1.
 
-See the file aes-128_attack.c for the implementation of the attack and the explications of each function.
+See the file `aes-128_attack.c`for the implementation of the attack and the explications of each function.
 
 ### Q2.
 
+See the `main` function from the file `aes-128_enc.c` for the tests with `xtime_variant` and a random S-box.
