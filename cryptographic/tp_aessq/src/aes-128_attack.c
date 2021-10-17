@@ -29,7 +29,7 @@ int build_random_lambda_set(
 		for (size_t j = 0; j < AES_BLOCK_SIZE; ++j) {
 			lambda_set[i][j] = init_vector[j];
 		}
-		lambda_set[i][0] = i;
+		lambda_set[i][0] = (uint8_t)i;
 	}
 
 	return 0;
@@ -74,14 +74,14 @@ bool most_common(size_t key_byte_counter[AES_KEY_BYTES_SIZE],
 				 uint8_t *guessed_key_byte) {
 	size_t max = 0;
 	bool max_unique = true;
-	uint8_t key_byte_count;
-	for (uint16_t key_byte = 0; key_byte < AES_KEY_BYTES_SIZE; ++key_byte) {
+	size_t key_byte_count;
+	for (uint8_t key_byte = 0; key_byte < AES_KEY_BYTES_SIZE - 1; ++key_byte) {
 		key_byte_count = key_byte_counter[key_byte];
 
 		if (key_byte_count > max) {
 			// New most common key byte
 			max = key_byte_count;
-			*guessed_key_byte = ((uint8_t)key_byte);
+			*guessed_key_byte = key_byte;
 			max_unique = true;
 		} else if (key_byte_count == max) {
 			// There are 2 key bytes with the same occurence
@@ -143,7 +143,7 @@ int aes128_attack(void) {
 			// byte
 			key_byte_count = 0;
 			printf("Possible guess for byte %zu :", key_byte_index);
-			for (uint16_t key_byte = 0; key_byte < AES_KEY_BYTES_SIZE;
+			for (uint8_t key_byte = 0; key_byte < AES_KEY_BYTES_SIZE - 1;
 				 ++key_byte) {
 				if (distinguisher(lambda_set, key_byte_index, key_byte)) {
 					printf(" %x -", key_byte);

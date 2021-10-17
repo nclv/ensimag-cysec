@@ -1,0 +1,6 @@
+src/utils.c:9:6:print_array	48	static
+src/utils.c:16:6:print_array2d	64	static
+src/utils.c:26:6:xor_array	32	static
+src/utils.c:35:5:random_byte	48	static
+src/utils.c:50:5:random_key	48	static
+src/utils.c:65:6:is_equals	32	static

@@ -26,7 +26,7 @@ uint8_t xtime(uint8_t p) {
 	m -= 1;
 	m &= 0x1B;
 
-	return ((p << 1) ^ m);
+	return (uint8_t)((p << 1) ^ m);
 }
 
 /*
@@ -40,7 +40,7 @@ uint8_t xtime_variant(uint8_t p) {
 	m -= 1;
 	m &= 0x7B;
 
-	return ((p << 1) ^ m);
+	return (uint8_t)((p << 1) ^ m);
 }
 
 /*
@@ -193,7 +193,7 @@ void aes128_enc(uint8_t block[AES_BLOCK_SIZE],
 	}
 }
 
-void question1() {
+void question1(void) {
 	printf("-- Question 1 : Verification of the xtime function --\n");
 	// Test with P = X + 1
 	uint8_t mult = xtime(3);
@@ -205,7 +205,7 @@ void question1() {
 	printf("\n");
 }
 
-void question2() {
+void question2(void) {
 	printf("-- Question 2 : Correctness of the function prev_aes128_round_key "
 		   "--\n");
 
@@ -259,7 +259,7 @@ void f_construction(const uint8_t key1[AES_128_KEY_SIZE],
 	// print_array(xored);
 }
 
-void question3() {
+void question3(void) {
 	printf("-- Question 3 : Implementation of the key function F (xored of "
 		   "E(k_1, x) and E(k_2, x)) --\n");
 
@@ -305,7 +305,7 @@ void question3() {
 			sum_coordinates[coordinate] ^= enc_lambda_set[i][coordinate];
 		}
 	}
-	
+
 	printf("Verification of the distinguisher's property (xor coordinates for "
 		   "a lambda set is the vector 0):\n");
 	print_array(sum_coordinates);
@@ -314,6 +314,9 @@ void question3() {
 }
 
 int main(int argc, char **argv) {
+	(void) argc;
+	(void) argv;
+
 	// AES 3 10-rounds
 	// Test with test values provided in the standard document
 	uint8_t block[AES_BLOCK_SIZE] = {0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a,
