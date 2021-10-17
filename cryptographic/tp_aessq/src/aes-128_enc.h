@@ -15,7 +15,7 @@ extern uint8_t xtime_variant(uint8_t p);
  */
 void aes128_enc(uint8_t block[AES_BLOCK_SIZE],
 				const uint8_t key[AES_128_KEY_SIZE], unsigned nrounds,
-				int lastfull, uint8_t (*xtime)(uint8_t));
+				int lastfull, uint8_t (*xtime)(uint8_t), const uint8_t Sbox[256]);
 
 /*
  * The AES S-box, duh
@@ -78,7 +78,7 @@ static const uint8_t Sinv[256] = {
  * The ``master decryption key'' is the 10-th round key (for a full AES-128)
  */
 void prev_aes128_round_key(const uint8_t next_key[16], uint8_t prev_key[16],
-						   int round);
+						   int round, const uint8_t Sbox[256]);
 
 /*
  * Compute the @(round + 1)-th round key in @next_key, given the @round-th key
@@ -87,6 +87,6 @@ void prev_aes128_round_key(const uint8_t next_key[16], uint8_t prev_key[16],
  * The ``master key'' is the 0-th round key
  */
 void next_aes128_round_key(const uint8_t prev_key[16], uint8_t next_key[16],
-						   int round);
+						   int round, const uint8_t Sbox[256]);
 
 #endif // __AES-128_ENC__H__

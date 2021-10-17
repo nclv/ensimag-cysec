@@ -10,6 +10,6 @@
 
 extern int build_random_lambda_set(
 	uint8_t lambda_set[AES_LAMBDA_SET_SIZE][AES_BLOCK_SIZE]);
-extern int aes128_attack(uint8_t (*xtime)(uint8_t));
+extern int aes128_attack(uint8_t (*xtime)(uint8_t), const uint8_t Sbox[256], const uint8_t Sbox_inv[256]);
 
 #endif

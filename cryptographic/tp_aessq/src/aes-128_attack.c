@@ -39,26 +39,32 @@ uint8_t byte_reverse_add_round_key(uint8_t block_byte, uint8_t key_byte) {
 	return block_byte ^ key_byte;
 }
 
-uint8_t byte_reverse_sub_bytes(uint8_t block_byte) { return Sinv[block_byte]; }
+uint8_t byte_reverse_sub_bytes(uint8_t block_byte,
+							   const uint8_t Sbox_inv[256]) {
+	return Sbox_inv[block_byte];
+}
 
 /*
  * partial_decrypt reverse AddRoundKey and SubBytes
  * We don't need to reverse ShiftRow.
  */
-uint8_t partial_decrypt(uint8_t block_byte, uint8_t key_byte) {
+uint8_t partial_decrypt(uint8_t block_byte, uint8_t key_byte,
+						const uint8_t Sbox_inv[256]) {
 	return byte_reverse_sub_bytes(
-		byte_reverse_add_round_key(block_byte, key_byte));
+		byte_reverse_add_round_key(block_byte, key_byte), Sbox_inv);
 }
 
 /*
  * Returns true if the distinguisher condition is verified.
  */
 bool distinguisher(uint8_t lambda_set[AES_LAMBDA_SET_SIZE][AES_BLOCK_SIZE],
-				   size_t key_byte_index, uint8_t guessed_key_byte) {
+				   size_t key_byte_index, uint8_t guessed_key_byte,
+				   const uint8_t Sbox_inv[256]) {
 	// sum holds the xored values of the partially decrypted lambda set
 	uint8_t sum = 0;
 	for (size_t i = 0; i < AES_LAMBDA_SET_SIZE; ++i) {
-		sum ^= partial_decrypt(lambda_set[i][key_byte_index], guessed_key_byte);
+		sum ^= partial_decrypt(lambda_set[i][key_byte_index], guessed_key_byte,
+							   Sbox_inv);
 	}
 
 	return (sum == 0);
@@ -75,13 +81,13 @@ bool most_common(size_t key_byte_counter[AES_KEY_BYTES_SIZE],
 	size_t max = 0;
 	bool max_unique = true;
 	size_t key_byte_count;
-	for (uint8_t key_byte = 0; key_byte < AES_KEY_BYTES_SIZE - 1; ++key_byte) {
+	for (uint16_t key_byte = 0; key_byte < AES_KEY_BYTES_SIZE; ++key_byte) {
 		key_byte_count = key_byte_counter[key_byte];
 
 		if (key_byte_count > max) {
 			// New most common key byte
 			max = key_byte_count;
-			*guessed_key_byte = key_byte;
+			*guessed_key_byte = (uint8_t)key_byte;
 			max_unique = true;
 		} else if (key_byte_count == max) {
 			// There are 2 key bytes with the same occurence
@@ -93,7 +99,8 @@ bool most_common(size_t key_byte_counter[AES_KEY_BYTES_SIZE],
 	return max_unique;
 }
 
-int aes128_attack(uint8_t (*xtime)(uint8_t)) {
+int aes128_attack(uint8_t (*xtime)(uint8_t), const uint8_t Sbox[256],
+				  const uint8_t Sbox_inv[256]) {
 	// Generate a random key
 	uint8_t key[AES_128_KEY_SIZE] = {0};
 
@@ -128,7 +135,8 @@ int aes128_attack(uint8_t (*xtime)(uint8_t)) {
 
 		// Encode the lambda set
 		for (size_t i = 0; i < AES_LAMBDA_SET_SIZE; ++i) {
-			aes128_enc(lambda_set[i], key, 4, 0, xtime); // encode 3 1/2 rounds
+			aes128_enc(lambda_set[i], key, 4, 0, xtime,
+					   Sbox); // encode 3 1/2 rounds
 		}
 
 		// Loop through the key bytes we try to guess
@@ -143,9 +151,10 @@ int aes128_attack(uint8_t (*xtime)(uint8_t)) {
 			// byte
 			key_byte_count = 0;
 			printf("Possible guess for byte %zu :", key_byte_index);
-			for (uint8_t key_byte = 0; key_byte < AES_KEY_BYTES_SIZE - 1;
+			for (uint16_t key_byte = 0; key_byte < AES_KEY_BYTES_SIZE;
 				 ++key_byte) {
-				if (distinguisher(lambda_set, key_byte_index, key_byte)) {
+				if (distinguisher(lambda_set, key_byte_index, (uint8_t)key_byte,
+								  Sbox_inv)) {
 					printf(" %x -", key_byte);
 					// Increment the possible guesses counter for the next
 					// iteration with a new lambda set
@@ -155,7 +164,7 @@ int aes128_attack(uint8_t (*xtime)(uint8_t)) {
 					key_byte_count++;
 					// Save the last guessed byte, used if there is only one
 					// guess for this key byte
-					guessed_key_byte = key_byte;
+					guessed_key_byte = (uint8_t)key_byte;
 				}
 			}
 			printf("\n");
@@ -195,10 +204,10 @@ int aes128_attack(uint8_t (*xtime)(uint8_t)) {
 	uint8_t round3_key[AES_128_KEY_SIZE];
 
 	printf("3rd round key : \n");
-	next_aes128_round_key(key, tmp, 0);
-	next_aes128_round_key(tmp, round3_key, 1);
-	next_aes128_round_key(round3_key, tmp, 2);
-	next_aes128_round_key(tmp, round3_key, 3);
+	next_aes128_round_key(key, tmp, 0, Sbox);
+	next_aes128_round_key(tmp, round3_key, 1, Sbox);
+	next_aes128_round_key(round3_key, tmp, 2, Sbox);
+	next_aes128_round_key(tmp, round3_key, 3, Sbox);
 	print_array(round3_key);
 
 	printf("3rd round decoded key : \n");
@@ -207,10 +216,10 @@ int aes128_attack(uint8_t (*xtime)(uint8_t)) {
 	printf("3rd round key and decoded 3rd round key are equals : %s\n",
 		   is_equals(decoded_key, round3_key) ? "true" : "false");
 
-	prev_aes128_round_key(decoded_key, tmp, 3);
-	prev_aes128_round_key(tmp, decoded_key, 2);
-	prev_aes128_round_key(decoded_key, tmp, 1);
-	prev_aes128_round_key(tmp, decoded_key, 0);
+	prev_aes128_round_key(decoded_key, tmp, 3, Sbox);
+	prev_aes128_round_key(tmp, decoded_key, 2, Sbox);
+	prev_aes128_round_key(decoded_key, tmp, 1, Sbox);
+	prev_aes128_round_key(tmp, decoded_key, 0, Sbox);
 
 	printf("Decoded key : \n");
 	print_array(decoded_key);

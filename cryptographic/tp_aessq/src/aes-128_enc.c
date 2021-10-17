@@ -13,6 +13,7 @@
 
 #include "aes-128_attack.h"
 #include "aes-128_enc.h"
+#include "sbox.h"
 #include "utils.h"
 
 /*
@@ -54,7 +55,7 @@ static const uint8_t RC[10] = {0x01, 0x02, 0x04, 0x08, 0x10,
  * If lastround is 16, MixColumns operation is not done.
  */
 void aes_round(uint8_t block[AES_BLOCK_SIZE], uint8_t round_key[AES_BLOCK_SIZE],
-			   int lastround, uint8_t (*xtime)(uint8_t)) {
+			   int lastround, uint8_t (*xtime)(uint8_t), const uint8_t Sbox[256]) {
 	int i;
 	uint8_t tmp;
 
@@ -62,29 +63,29 @@ void aes_round(uint8_t block[AES_BLOCK_SIZE], uint8_t round_key[AES_BLOCK_SIZE],
 	 * SubBytes + ShiftRow
 	 */
 	/* Row 0 */
-	block[0] = S[block[0]];
-	block[4] = S[block[4]];
-	block[8] = S[block[8]];
-	block[12] = S[block[12]];
+	block[0] = Sbox[block[0]];
+	block[4] = Sbox[block[4]];
+	block[8] = Sbox[block[8]];
+	block[12] = Sbox[block[12]];
 	/* Row 1 */
 	tmp = block[1];
-	block[1] = S[block[5]];
-	block[5] = S[block[9]];
-	block[9] = S[block[13]];
-	block[13] = S[tmp];
+	block[1] = Sbox[block[5]];
+	block[5] = Sbox[block[9]];
+	block[9] = Sbox[block[13]];
+	block[13] = Sbox[tmp];
 	/* Row 2 */
 	tmp = block[2];
-	block[2] = S[block[10]];
-	block[10] = S[tmp];
+	block[2] = Sbox[block[10]];
+	block[10] = Sbox[tmp];
 	tmp = block[6];
-	block[6] = S[block[14]];
-	block[14] = S[tmp];
+	block[6] = Sbox[block[14]];
+	block[14] = Sbox[tmp];
 	/* Row 3 */
 	tmp = block[15];
-	block[15] = S[block[11]];
-	block[11] = S[block[7]];
-	block[7] = S[block[3]];
-	block[3] = S[tmp];
+	block[15] = Sbox[block[11]];
+	block[11] = Sbox[block[7]];
+	block[7] = Sbox[block[3]];
+	block[3] = Sbox[tmp];
 
 	/*
 	 * MixColumns
@@ -117,17 +118,17 @@ void aes_round(uint8_t block[AES_BLOCK_SIZE], uint8_t round_key[AES_BLOCK_SIZE],
  * The ``master key'' is the 0-th round key
  */
 void next_aes128_round_key(const uint8_t prev_key[16], uint8_t next_key[16],
-						   int round) {
+						   int round, const uint8_t Sbox[256]) {
 	int i;
 
 	// print_array(next_key);
-	next_key[0] = prev_key[0] ^ S[prev_key[13]] ^ RC[round];
+	next_key[0] = prev_key[0] ^ Sbox[prev_key[13]] ^ RC[round];
 	// print_array(next_key);
-	next_key[1] = prev_key[1] ^ S[prev_key[14]];
+	next_key[1] = prev_key[1] ^ Sbox[prev_key[14]];
 	// print_array(next_key);
-	next_key[2] = prev_key[2] ^ S[prev_key[15]];
+	next_key[2] = prev_key[2] ^ Sbox[prev_key[15]];
 	// print_array(next_key);
-	next_key[3] = prev_key[3] ^ S[prev_key[12]];
+	next_key[3] = prev_key[3] ^ Sbox[prev_key[12]];
 
 	for (i = 4; i < 16; i++) {
 		// print_array(next_key);
@@ -142,7 +143,7 @@ void next_aes128_round_key(const uint8_t prev_key[16], uint8_t next_key[16],
  * The ``master decryption key'' is the 10-th round key (for a full AES-128)
  */
 void prev_aes128_round_key(const uint8_t next_key[16], uint8_t prev_key[16],
-						   int round) {
+						   int round, const uint8_t Sbox[256]) {
 	int i;
 
 	for (i = 4; i < 16; i++) {
@@ -151,13 +152,13 @@ void prev_aes128_round_key(const uint8_t next_key[16], uint8_t prev_key[16],
 	}
 
 	//   print_array(prev_key);
-	prev_key[0] = next_key[0] ^ S[prev_key[13]] ^ RC[round];
+	prev_key[0] = next_key[0] ^ Sbox[prev_key[13]] ^ RC[round];
 	//   print_array(prev_key);
-	prev_key[1] = next_key[1] ^ S[prev_key[14]];
+	prev_key[1] = next_key[1] ^ Sbox[prev_key[14]];
 	//   print_array(prev_key);
-	prev_key[2] = next_key[2] ^ S[prev_key[15]];
+	prev_key[2] = next_key[2] ^ Sbox[prev_key[15]];
 	//   print_array(prev_key);
-	prev_key[3] = next_key[3] ^ S[prev_key[12]];
+	prev_key[3] = next_key[3] ^ Sbox[prev_key[12]];
 }
 
 /*
@@ -167,7 +168,7 @@ void prev_aes128_round_key(const uint8_t next_key[16], uint8_t prev_key[16],
  */
 void aes128_enc(uint8_t block[AES_BLOCK_SIZE],
 				const uint8_t key[AES_128_KEY_SIZE], unsigned nrounds,
-				int lastfull, uint8_t (*xtime)(uint8_t)) {
+				int lastfull, uint8_t (*xtime)(uint8_t), const uint8_t Sbox[256]) {
 	uint8_t ekey[32];
 	int i, pk, nk;
 
@@ -176,20 +177,20 @@ void aes128_enc(uint8_t block[AES_BLOCK_SIZE],
 		block[i] ^= key[i];
 		ekey[i] = key[i];
 	}
-	next_aes128_round_key(ekey, ekey + 16, 0);
+	next_aes128_round_key(ekey, ekey + 16, 0, Sbox);
 
 	pk = 0;
 	nk = 16;
 	for (i = 1; i < nrounds; i++) {
-		aes_round(block, ekey + nk, 0, xtime);
+		aes_round(block, ekey + nk, 0, xtime, Sbox);
 		pk = (pk + 16) & 0x10;
 		nk = (nk + 16) & 0x10;
-		next_aes128_round_key(ekey + pk, ekey + nk, i);
+		next_aes128_round_key(ekey + pk, ekey + nk, i, Sbox);
 	}
 	if (lastfull) {
-		aes_round(block, ekey + nk, 0, xtime);
+		aes_round(block, ekey + nk, 0, xtime, Sbox);
 	} else {
-		aes_round(block, ekey + nk, 16, xtime);
+		aes_round(block, ekey + nk, 16, xtime, Sbox);
 	}
 }
 
@@ -221,13 +222,13 @@ void question2(void) {
 
 	// prev_key is the master key because round = 0
 	printf("Next key\n");
-	next_aes128_round_key(prev_key, next_key, 0);
+	next_aes128_round_key(prev_key, next_key, 0, S);
 	print_array(next_key);
 
 	uint8_t prev_key_computed[AES_128_KEY_SIZE];
 
 	printf("Prev key\n");
-	prev_aes128_round_key(next_key, prev_key_computed, 0);
+	prev_aes128_round_key(next_key, prev_key_computed, 0, S);
 	print_array(prev_key_computed);
 
 	printf("\n");
@@ -245,12 +246,12 @@ void f_construction(const uint8_t key1[AES_128_KEY_SIZE],
 	uint8_t enc1[AES_BLOCK_SIZE], enc2[AES_BLOCK_SIZE];
 
 	memcpy(enc1, plaintext, sizeof(uint8_t) * AES_BLOCK_SIZE);
-	aes128_enc(enc1, key1, 3, 1, xtime);
+	aes128_enc(enc1, key1, 3, 1, xtime, S);
 	// printf("Encryption: E(k_1, x)=\n");
 	// print_array(enc1);
 
 	memcpy(enc2, plaintext, sizeof(uint8_t) * AES_BLOCK_SIZE);
-	aes128_enc(enc2, key2, 3, 1, xtime); // same key -> xored = 0
+	aes128_enc(enc2, key2, 3, 1, xtime, S); // same key -> xored = 0
 	// printf("Encryption: E(k_2, x)=\n");
 	// print_array(enc2);
 
@@ -313,6 +314,9 @@ void question3(void) {
 	printf("\n");
 }
 
+/*
+ * full_encryption performs 9¹/² rounds encryption of a block.
+ */
 void full_encryption(uint8_t block[AES_BLOCK_SIZE],
 					 const uint8_t key[AES_128_KEY_SIZE],
 					 uint8_t (*xtime)(uint8_t)) {
@@ -324,7 +328,7 @@ void full_encryption(uint8_t block[AES_BLOCK_SIZE],
 	print_array(tmp);
 	print_array(key);
 
-	aes128_enc(tmp, key, 10, 0, xtime);
+	aes128_enc(tmp, key, 10, 0, xtime, S);
 
 	printf("Block and key (after):\n");
 	print_array(tmp);
@@ -353,7 +357,7 @@ int main(int argc, char **argv) {
 	question3();
 
 	printf("--- EXERCICE 2 : KEY-RECOVERY ATTACK FOR 3¹/²-ROUND AES ---\n");
-	aes128_attack(xtime);
+	aes128_attack(xtime, S, Sinv);
 
 	printf("\nCheck that the cipher is not the same with a different xtime "
 		   "function.\n");
@@ -363,5 +367,18 @@ int main(int argc, char **argv) {
 	full_encryption(block, key, xtime_variant);
 
 	printf("\nSame attack with xtime_variant :\n");
-	aes128_attack(xtime_variant);
+	aes128_attack(xtime_variant, S, Sinv);
+
+	printf("\nNote that a modification of xtime modify the MDS matrix.\n");
+	printf("\nModifying S-box\n");
+
+	printf("Same attack with xtime and an other Sbox :\n");
+	// Create a random S-box
+	uint8_t S_alt[256] = {0};
+	random_sbox(S_alt);
+	// Build the s-box inverse
+	uint8_t S_alt_inv[256] = {0};
+	inverse_sbox(S_alt, S_alt_inv);
+
+	aes128_attack(xtime, S_alt, S_alt_inv);
 }

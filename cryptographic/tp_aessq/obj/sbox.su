@@ -1,0 +1,4 @@
+src/sbox.c:8:6:inverse_sbox	32	static
+src/sbox.c:17:6:swap	32	static
+src/sbox.c:26:6:shuffle	48	static
+src/sbox.c:36:6:random_sbox	48	static

@@ -1,7 +1,7 @@
 src/aes-128_attack.c:15:5:build_random_lambda_set	32	static
 src/aes-128_attack.c:38:9:byte_reverse_add_round_key	32	static
 src/aes-128_attack.c:42:9:byte_reverse_sub_bytes	32	static
-src/aes-128_attack.c:48:9:partial_decrypt	32	static
-src/aes-128_attack.c:56:6:distinguisher	32	static
-src/aes-128_attack.c:73:6:most_common	32	static
-src/aes-128_attack.c:96:5:aes128_attack	37216	static
+src/aes-128_attack.c:51:9:partial_decrypt	32	static
+src/aes-128_attack.c:60:6:distinguisher	32	static
+src/aes-128_attack.c:79:6:most_common	32	static
+src/aes-128_attack.c:102:5:aes128_attack	37232	static
