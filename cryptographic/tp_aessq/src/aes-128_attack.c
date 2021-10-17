@@ -52,7 +52,7 @@ uint8_t partial_decrypt(uint8_t block_byte, uint8_t key_byte) {
 
 /*
  * Returns true if the distinguisher condition is verified.
-*/
+ */
 bool distinguisher(uint8_t lambda_set[AES_LAMBDA_SET_SIZE][AES_BLOCK_SIZE],
 				   size_t key_byte_index, uint8_t guessed_key_byte) {
 	// sum holds the xored values of the partially decrypted lambda set
@@ -142,8 +142,7 @@ int aes128_attack(void) {
 			// (Re-)Initialize the count of key byte guesses for the current key
 			// byte
 			key_byte_count = 0;
-			printf("Possible guess for byte %zu :",
-						   key_byte_index);
+			printf("Possible guess for byte %zu :", key_byte_index);
 			for (uint16_t key_byte = 0; key_byte < AES_KEY_BYTES_SIZE;
 				 ++key_byte) {
 				if (distinguisher(lambda_set, key_byte_index, key_byte)) {
@@ -168,7 +167,8 @@ int aes128_attack(void) {
 				decoded_key[key_byte_index] = guessed_key_byte;
 				key_bytes_guessed++;
 			} else if (possible_key_byte_count[key_byte_index] > 0) {
-				// There are many key bytes guesses and we aren't using the first lambda set
+				// There are many key bytes guesses and we aren't using the
+				// first lambda set
 
 				if (most_common(key_bytes_counter[key_byte_index],
 								&guessed_key_byte)) {
@@ -184,7 +184,8 @@ int aes128_attack(void) {
 		}
 
 		printf("\nNumber of key bytes guessed : %zu\n", key_bytes_guessed);
-        printf("We have yet to find %zu key bytes.\n\n", AES_128_KEY_SIZE - key_bytes_guessed);
+		printf("We have yet to find %zu key bytes.\n\n",
+			   AES_128_KEY_SIZE - key_bytes_guessed);
 	}
 
 	printf("Key : \n");

@@ -11,8 +11,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "aes-128_enc.h"
 #include "aes-128_attack.h"
+#include "aes-128_enc.h"
 #include "utils.h"
 
 /*
@@ -201,15 +201,18 @@ void question1() {
 
 	// Test with P = X^7 + X^4 + X^3 + X + 1
 	mult = xtime(0x9B);
-	printf("Expected result : 0x2D. Result : 0x%x.\n", mult);	
+	printf("Expected result : 0x2D. Result : 0x%x.\n", mult);
 	printf("\n");
 }
 
 void question2() {
-	printf("-- Question 2 : Correctness of the function prev_aes128_round_key --\n");
+	printf("-- Question 2 : Correctness of the function prev_aes128_round_key "
+		   "--\n");
+
 	const uint8_t prev_key[AES_128_KEY_SIZE] = {
-		0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6,
-		0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c}; // key values provided in the standard document
+		0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab,
+		0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c}; // key values provided in the
+												   // standard document
 	uint8_t next_key[AES_128_KEY_SIZE];
 
 	printf("Test for a round on the key:\n");
@@ -226,31 +229,40 @@ void question2() {
 	printf("Prev key\n");
 	prev_aes128_round_key(next_key, prev_key_computed, 0);
 	print_array(prev_key_computed);
+
 	printf("\n");
 }
 
-void f_construction(const uint8_t key1[AES_128_KEY_SIZE] , const uint8_t key2[AES_128_KEY_SIZE],
-					uint8_t plaintext[AES_BLOCK_SIZE], uint8_t xored[AES_BLOCK_SIZE]) {
+/*
+ * f_construction build a keyed function F from a block cipher E as E(key1,
+ * plaintext) ⊕ E(key2, plaintext) The result is stored in xored.
+ */
+void f_construction(const uint8_t key1[AES_128_KEY_SIZE],
+					const uint8_t key2[AES_128_KEY_SIZE],
+					uint8_t plaintext[AES_BLOCK_SIZE],
+					uint8_t xored[AES_BLOCK_SIZE]) {
 
 	uint8_t enc1[AES_BLOCK_SIZE], enc2[AES_BLOCK_SIZE];
-	memcpy(enc1, plaintext, sizeof(uint8_t)*AES_BLOCK_SIZE);
-	aes128_enc(enc1, key1, 3, 1);
-	//printf("Encryption: E(k_1, x)=\n");
-	//print_array(enc1);
 
-	memcpy(enc2, plaintext, sizeof(uint8_t)*AES_BLOCK_SIZE);
+	memcpy(enc1, plaintext, sizeof(uint8_t) * AES_BLOCK_SIZE);
+	aes128_enc(enc1, key1, 3, 1);
+	// printf("Encryption: E(k_1, x)=\n");
+	// print_array(enc1);
+
+	memcpy(enc2, plaintext, sizeof(uint8_t) * AES_BLOCK_SIZE);
 	aes128_enc(enc2, key2, 3, 1); // same key -> xored = 0
-	//printf("Encryption: E(k_2, x)=\n");
-	//print_array(enc2);
+	// printf("Encryption: E(k_2, x)=\n");
+	// print_array(enc2);
 
 	xor_array(enc1, enc2, xored);
-	//printf("F(k_1||k_2, x)=\n");
-	//print_array(xored);
+	// printf("F(k_1||k_2, x)=\n");
+	// print_array(xored);
 }
 
 void question3() {
-	printf("-- Question 3 : Implementation of the key function F (xored of E(k_1, x) and E(k_2, x)) --\n");
-	
+	printf("-- Question 3 : Implementation of the key function F (xored of "
+		   "E(k_1, x) and E(k_2, x)) --\n");
+
 	const uint8_t key1[AES_128_KEY_SIZE] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x05,
 											0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b,
 											0x0c, 0x0d, 0x0e, 0x0f};
@@ -268,12 +280,14 @@ void question3() {
 	print_array(plaintext);
 	print_array(key1);
 	print_array(key1);
+
 	f_construction(key1, key1, plaintext, xored);
 	printf("F(k_1||k_2, x)=\n");
 	print_array(xored);
 	printf("\n");
 
-	printf("Test with k_1 != k_2 : Verification than the sum for each coordinates of all a lambda set is the vector 0.\n");
+	printf("Test with k_1 != k_2 : Verification than the sum for each "
+		   "coordinates of all a lambda set is the vector 0.\n");
 	printf("Keys (before) :\n");
 	print_array(key1);
 	print_array(key2);
@@ -281,15 +295,19 @@ void question3() {
 	uint8_t lambda_set[AES_LAMBDA_SET_SIZE][AES_BLOCK_SIZE];
 	uint8_t enc_lambda_set[AES_LAMBDA_SET_SIZE][AES_BLOCK_SIZE];
 	uint8_t sum_coordinates[AES_BLOCK_SIZE] = {0};
+
 	build_random_lambda_set(lambda_set);
+	
 	for (size_t i = 0; i < AES_LAMBDA_SET_SIZE; i++) {
 		f_construction(key1, key2, lambda_set[i], enc_lambda_set[i]);
-		
-		for(size_t coordinate=0; coordinate < AES_BLOCK_SIZE; coordinate++) {
+
+		for (size_t coordinate = 0; coordinate < AES_BLOCK_SIZE; coordinate++) {
 			sum_coordinates[coordinate] ^= enc_lambda_set[i][coordinate];
 		}
 	}
-	printf("Verification of the distinguisher's property (xor coordinates for a lambda set is the vector 0):\n");
+	
+	printf("Verification of the distinguisher's property (xor coordinates for "
+		   "a lambda set is the vector 0):\n");
 	print_array(sum_coordinates);
 
 	printf("\n");
