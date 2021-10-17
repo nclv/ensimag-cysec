@@ -140,4 +140,4 @@ See the file `aes-128_attack.c`for the implementation of the attack and the expl
 
 ### Q2.
 
-See the `main` function from the file `aes-128_enc.c` for the tests with `xtime_variant` and a random S-box.
+See the `main` function from the file `aes-128_enc.c` for the tests with `xtime_variant` and a random S-box. The generation of a random S-box is implemented in the file sbox.c.

@@ -359,20 +359,19 @@ int main(int argc, char **argv) {
 	printf("--- EXERCICE 2 : KEY-RECOVERY ATTACK FOR 3¹/²-ROUND AES ---\n");
 	aes128_attack(xtime, S, Sinv);
 
-	printf("\nCheck that the cipher is not the same with a different xtime "
+	printf("\n-- TEST : Check that the cipher is not the same with a different xtime "
 		   "function.\n");
 	printf("With xtime\n");
 	full_encryption(block, key, xtime);
 	printf("With xtime_variant\n");
 	full_encryption(block, key, xtime_variant);
 
-	printf("\nSame attack with xtime_variant :\n");
+	printf("\n--TEST : Same attack with xtime_variant :\n");
 	aes128_attack(xtime_variant, S, Sinv);
 
-	printf("\nNote that a modification of xtime modify the MDS matrix.\n");
-	printf("\nModifying S-box\n");
-
-	printf("Same attack with xtime and an other Sbox :\n");
+	printf("\n\n--TEST : Same attack with xtime and an other Sbox :\n");
+	printf("(Note that a modification of xtime modify the MDS matrix.)\n");
+	printf("Modifying S-box\n");
 	// Create a random S-box
 	uint8_t S_alt[256] = {0};
 	random_sbox(S_alt);
