@@ -5,6 +5,9 @@
 #ifndef __AES128_ENC__H__
 #define __AES128_ENC__H__
 
+extern uint8_t xtime(uint8_t p);
+extern uint8_t xtime_variant(uint8_t p);
+
 /*
  * Encrypt @block with @key over @nrounds. If @lastfull is true, the last round
  * includes MixColumn, otherwise it doesn't.
@@ -12,7 +15,7 @@
  */
 void aes128_enc(uint8_t block[AES_BLOCK_SIZE],
 				const uint8_t key[AES_128_KEY_SIZE], unsigned nrounds,
-				int lastfull);
+				int lastfull, uint8_t (*xtime)(uint8_t));
 
 /*
  * The AES S-box, duh

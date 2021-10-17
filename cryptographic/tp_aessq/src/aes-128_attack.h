@@ -8,7 +8,8 @@
 #ifndef __AES128_ATTACK__H_
 #define __AES128_ATTACK__H_
 
-extern int build_random_lambda_set(uint8_t lambda_set[AES_LAMBDA_SET_SIZE][AES_BLOCK_SIZE]);
-extern int aes128_attack(void);
+extern int build_random_lambda_set(
+	uint8_t lambda_set[AES_LAMBDA_SET_SIZE][AES_BLOCK_SIZE]);
+extern int aes128_attack(uint8_t (*xtime)(uint8_t));
 
 #endif

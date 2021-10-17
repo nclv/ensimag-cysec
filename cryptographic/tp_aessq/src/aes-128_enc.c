@@ -54,7 +54,7 @@ static const uint8_t RC[10] = {0x01, 0x02, 0x04, 0x08, 0x10,
  * If lastround is 16, MixColumns operation is not done.
  */
 void aes_round(uint8_t block[AES_BLOCK_SIZE], uint8_t round_key[AES_BLOCK_SIZE],
-			   int lastround) {
+			   int lastround, uint8_t (*xtime)(uint8_t)) {
 	int i;
 	uint8_t tmp;
 
@@ -96,10 +96,10 @@ void aes_round(uint8_t block[AES_BLOCK_SIZE], uint8_t round_key[AES_BLOCK_SIZE],
 		uint8_t tmp2 = column[0];
 		tmp = column[0] ^ column[1] ^ column[2] ^ column[3];
 
-		column[0] ^= tmp ^ xtime(column[0] ^ column[1]);
-		column[1] ^= tmp ^ xtime(column[1] ^ column[2]);
-		column[2] ^= tmp ^ xtime(column[2] ^ column[3]);
-		column[3] ^= tmp ^ xtime(column[3] ^ tmp2);
+		column[0] ^= tmp ^ (*xtime)(column[0] ^ column[1]);
+		column[1] ^= tmp ^ (*xtime)(column[1] ^ column[2]);
+		column[2] ^= tmp ^ (*xtime)(column[2] ^ column[3]);
+		column[3] ^= tmp ^ (*xtime)(column[3] ^ tmp2);
 	}
 
 	/*
@@ -167,7 +167,7 @@ void prev_aes128_round_key(const uint8_t next_key[16], uint8_t prev_key[16],
  */
 void aes128_enc(uint8_t block[AES_BLOCK_SIZE],
 				const uint8_t key[AES_128_KEY_SIZE], unsigned nrounds,
-				int lastfull) {
+				int lastfull, uint8_t (*xtime)(uint8_t)) {
 	uint8_t ekey[32];
 	int i, pk, nk;
 
@@ -181,15 +181,15 @@ void aes128_enc(uint8_t block[AES_BLOCK_SIZE],
 	pk = 0;
 	nk = 16;
 	for (i = 1; i < nrounds; i++) {
-		aes_round(block, ekey + nk, 0);
+		aes_round(block, ekey + nk, 0, xtime);
 		pk = (pk + 16) & 0x10;
 		nk = (nk + 16) & 0x10;
 		next_aes128_round_key(ekey + pk, ekey + nk, i);
 	}
 	if (lastfull) {
-		aes_round(block, ekey + nk, 0);
+		aes_round(block, ekey + nk, 0, xtime);
 	} else {
-		aes_round(block, ekey + nk, 16);
+		aes_round(block, ekey + nk, 16, xtime);
 	}
 }
 
@@ -245,12 +245,12 @@ void f_construction(const uint8_t key1[AES_128_KEY_SIZE],
 	uint8_t enc1[AES_BLOCK_SIZE], enc2[AES_BLOCK_SIZE];
 
 	memcpy(enc1, plaintext, sizeof(uint8_t) * AES_BLOCK_SIZE);
-	aes128_enc(enc1, key1, 3, 1);
+	aes128_enc(enc1, key1, 3, 1, xtime);
 	// printf("Encryption: E(k_1, x)=\n");
 	// print_array(enc1);
 
 	memcpy(enc2, plaintext, sizeof(uint8_t) * AES_BLOCK_SIZE);
-	aes128_enc(enc2, key2, 3, 1); // same key -> xored = 0
+	aes128_enc(enc2, key2, 3, 1, xtime); // same key -> xored = 0
 	// printf("Encryption: E(k_2, x)=\n");
 	// print_array(enc2);
 
@@ -297,7 +297,7 @@ void question3(void) {
 	uint8_t sum_coordinates[AES_BLOCK_SIZE] = {0};
 
 	build_random_lambda_set(lambda_set);
-	
+
 	for (size_t i = 0; i < AES_LAMBDA_SET_SIZE; i++) {
 		f_construction(key1, key2, lambda_set[i], enc_lambda_set[i]);
 
@@ -313,9 +313,28 @@ void question3(void) {
 	printf("\n");
 }
 
+void full_encryption(uint8_t block[AES_BLOCK_SIZE],
+					 const uint8_t key[AES_128_KEY_SIZE],
+					 uint8_t (*xtime)(uint8_t)) {
+	uint8_t tmp[AES_BLOCK_SIZE];
+
+	printf("Test for the encryption of a block with a key (9¹/² rounds):\n");
+	printf("Block and key (before) :\n");
+	memcpy(tmp, block, sizeof(uint8_t) * AES_BLOCK_SIZE);
+	print_array(tmp);
+	print_array(key);
+
+	aes128_enc(tmp, key, 10, 0, xtime);
+
+	printf("Block and key (after):\n");
+	print_array(tmp);
+	print_array(key);
+	printf("\n\n");
+}
+
 int main(int argc, char **argv) {
-	(void) argc;
-	(void) argv;
+	(void)argc;
+	(void)argv;
 
 	// AES 3 10-rounds
 	// Test with test values provided in the standard document
@@ -326,17 +345,7 @@ int main(int argc, char **argv) {
 										   0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88,
 										   0x09, 0xcf, 0x4f, 0x3c};
 
-	printf("Test for the encryption of a block with a key (9¹/² rounds):\n");
-	printf("Block and key (before) :\n");
-	print_array(block);
-	print_array(key);
-
-	aes128_enc(block, key, 10, 0);
-
-	printf("Block and key (after):\n");
-	print_array(block);
-	print_array(key);
-	printf("\n\n");
+	full_encryption(block, key, xtime);
 
 	printf("--- EXERCICE 1 : WARMING UP ---\n");
 	question1();
@@ -344,5 +353,15 @@ int main(int argc, char **argv) {
 	question3();
 
 	printf("--- EXERCICE 2 : KEY-RECOVERY ATTACK FOR 3¹/²-ROUND AES ---\n");
-	aes128_attack();
+	aes128_attack(xtime);
+
+	printf("\nCheck that the cipher is not the same with a different xtime "
+		   "function.\n");
+	printf("With xtime\n");
+	full_encryption(block, key, xtime);
+	printf("With xtime_variant\n");
+	full_encryption(block, key, xtime_variant);
+
+	printf("\nSame attack with xtime_variant :\n");
+	aes128_attack(xtime_variant);
 }

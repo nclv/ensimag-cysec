@@ -93,7 +93,7 @@ bool most_common(size_t key_byte_counter[AES_KEY_BYTES_SIZE],
 	return max_unique;
 }
 
-int aes128_attack(void) {
+int aes128_attack(uint8_t (*xtime)(uint8_t)) {
 	// Generate a random key
 	uint8_t key[AES_128_KEY_SIZE] = {0};
 
@@ -128,7 +128,7 @@ int aes128_attack(void) {
 
 		// Encode the lambda set
 		for (size_t i = 0; i < AES_LAMBDA_SET_SIZE; ++i) {
-			aes128_enc(lambda_set[i], key, 4, 0); // encode 3 1/2 rounds
+			aes128_enc(lambda_set[i], key, 4, 0, xtime); // encode 3 1/2 rounds
 		}
 
 		// Loop through the key bytes we try to guess
