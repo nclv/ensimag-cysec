@@ -1,6 +1,11 @@
 # AES
 
-Implement the inverse key schedule.
+By **Elina Houde** and **Nicolas Vincent**.
+
+Program compilation (check that your are in the root directory) :
+```
+make
+```
 
 ## Exercice 1: Warming up
 
