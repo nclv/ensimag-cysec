@@ -142,11 +142,12 @@ int aes128_attack(void) {
 			// (Re-)Initialize the count of key byte guesses for the current key
 			// byte
 			key_byte_count = 0;
+			printf("Possible guess for byte %zu :",
+						   key_byte_index);
 			for (uint16_t key_byte = 0; key_byte < AES_KEY_BYTES_SIZE;
 				 ++key_byte) {
 				if (distinguisher(lambda_set, key_byte_index, key_byte)) {
-					printf("Possible guess for byte %zu : %x \n",
-						   key_byte_index, key_byte);
+					printf(" %x -", key_byte);
 					// Increment the possible guesses counter for the next
 					// iteration with a new lambda set
 					key_bytes_counter[key_byte_index][key_byte]++;
@@ -158,6 +159,7 @@ int aes128_attack(void) {
 					guessed_key_byte = key_byte;
 				}
 			}
+			printf("\n");
 
 			printf("Possible keys count : %zu \n", key_byte_count);
 			if (key_byte_count == 1) {
@@ -181,8 +183,8 @@ int aes128_attack(void) {
 			possible_key_byte_count[key_byte_index] = key_byte_count;
 		}
 
-		printf("Number of key bytes guessed : %zu\n", key_bytes_guessed);
-        printf("We have yet to find %zu key bytes.\n", AES_128_KEY_SIZE - key_bytes_guessed);
+		printf("\nNumber of key bytes guessed : %zu\n", key_bytes_guessed);
+        printf("We have yet to find %zu key bytes.\n\n", AES_128_KEY_SIZE - key_bytes_guessed);
 	}
 
 	printf("Key : \n");

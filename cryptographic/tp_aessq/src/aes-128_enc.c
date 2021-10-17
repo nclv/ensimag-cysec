@@ -31,8 +31,7 @@ uint8_t xtime(uint8_t p) {
 
 /*
  * Constant-time ``broadcast-based'' multiplication by $a$ in $F_2[X]/X^8 + X^6
- * + X^5 + X^4
- * + X^3 + X + 1$
+ * + X^5 + X^4 + X^3 + X + 1$
  */
 uint8_t xtime_variant(uint8_t p) {
 	uint8_t m = p >> 7;
@@ -194,46 +193,64 @@ void aes128_enc(uint8_t block[AES_BLOCK_SIZE],
 	}
 }
 
-int main(int argc, char **argv) {
+void question1() {
+	printf("-- Question 1 : Verification of the xtime function --\n");
+	// Test with P = X + 1
 	uint8_t mult = xtime(3);
-	printf("%d\n", mult);
+	printf("Expected result : 0x6. Result : 0x%x.\n", mult);
 
+	// Test with P = X^7 + X^4 + X^3 + X + 1
+	mult = xtime(0x9B);
+	printf("Expected result : 0x2D. Result : 0x%x.\n", mult);	
+	printf("\n");
+}
+
+void question2() {
+	printf("-- Question 2 : Correctness of the function prev_aes128_round_key --\n");
 	const uint8_t prev_key[AES_128_KEY_SIZE] = {
 		0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6,
-		0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
+		0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c}; // key values provided in the standard document
 	uint8_t next_key[AES_128_KEY_SIZE];
+
+	printf("Test for a round on the key:\n");
+	printf("Original key\n");
 	print_array(prev_key);
 
 	// prev_key is the master key because round = 0
+	printf("Next key\n");
 	next_aes128_round_key(prev_key, next_key, 0);
 	print_array(next_key);
 
 	uint8_t prev_key_computed[AES_128_KEY_SIZE];
 
-	printf("Inverse\n");
+	printf("Prev key\n");
 	prev_aes128_round_key(next_key, prev_key_computed, 0);
 	print_array(prev_key_computed);
+	printf("\n");
+}
 
-	// AES 3 1/2 rounds
-	uint8_t block[AES_BLOCK_SIZE] = {0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a,
-									 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2,
-									 0xe0, 0x37, 0x07, 0x34};
-	const uint8_t key[AES_128_KEY_SIZE] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae,
-										   0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88,
-										   0x09, 0xcf, 0x4f, 0x3c};
+void f_construction(const uint8_t key1[AES_128_KEY_SIZE] , const uint8_t key2[AES_128_KEY_SIZE],
+					uint8_t plaintext[AES_BLOCK_SIZE], uint8_t xored[AES_BLOCK_SIZE]) {
 
-	printf("Block and key (before) :\n");
-	print_array(block);
-	print_array(key);
+	uint8_t enc1[AES_BLOCK_SIZE], enc2[AES_BLOCK_SIZE];
+	memcpy(enc1, plaintext, sizeof(uint8_t)*AES_BLOCK_SIZE);
+	aes128_enc(enc1, key1, 3, 1);
+	//printf("Encryption: E(k_1, x)=\n");
+	//print_array(enc1);
 
-	aes128_enc(block, key, 10, 0);
+	memcpy(enc2, plaintext, sizeof(uint8_t)*AES_BLOCK_SIZE);
+	aes128_enc(enc2, key2, 3, 1); // same key -> xored = 0
+	//printf("Encryption: E(k_2, x)=\n");
+	//print_array(enc2);
 
-	printf("Block and key (after):\n");
-	print_array(block);
-	print_array(key);
+	xor_array(enc1, enc2, xored);
+	//printf("F(k_1||k_2, x)=\n");
+	//print_array(xored);
+}
 
-	printf("Xored (Q3):\n");
-
+void question3() {
+	printf("-- Question 3 : Implementation of the key function F (xored of E(k_1, x) and E(k_2, x)) --\n");
+	
 	const uint8_t key1[AES_128_KEY_SIZE] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x05,
 											0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b,
 											0x0c, 0x0d, 0x0e, 0x0f};
@@ -244,20 +261,67 @@ int main(int argc, char **argv) {
 	uint8_t plaintext[AES_BLOCK_SIZE] = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55,
 										 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb,
 										 0xcc, 0xdd, 0xee, 0xff};
-
-	uint8_t enc1[AES_BLOCK_SIZE];
-	memcpy(enc1, plaintext, sizeof(plaintext));
-	print_array(enc1);
-	aes128_enc(enc1, key1, 3, 1);
-	print_array(enc1);
-
-	print_array(plaintext);
-	aes128_enc(plaintext, key1, 3, 1); // same key -> xored = 0
-	print_array(plaintext);
-
 	uint8_t xored[AES_BLOCK_SIZE];
-	xor_array(enc1, plaintext, xored);
-	print_array(xored);
 
+	printf("Test with k_1=k_2\n");
+	printf("Block and keys (before) :\n");
+	print_array(plaintext);
+	print_array(key1);
+	print_array(key1);
+	f_construction(key1, key1, plaintext, xored);
+	printf("F(k_1||k_2, x)=\n");
+	print_array(xored);
+	printf("\n");
+
+	printf("Test with k_1 != k_2 : Verification than the sum for each coordinates of all a lambda set is the vector 0.\n");
+	printf("Keys (before) :\n");
+	print_array(key1);
+	print_array(key2);
+
+	uint8_t lambda_set[AES_LAMBDA_SET_SIZE][AES_BLOCK_SIZE];
+	uint8_t enc_lambda_set[AES_LAMBDA_SET_SIZE][AES_BLOCK_SIZE];
+	uint8_t sum_coordinates[AES_BLOCK_SIZE] = {0};
+	build_random_lambda_set(lambda_set);
+	for (size_t i = 0; i < AES_LAMBDA_SET_SIZE; i++) {
+		f_construction(key1, key2, lambda_set[i], enc_lambda_set[i]);
+		
+		for(size_t coordinate=0; coordinate < AES_BLOCK_SIZE; coordinate++) {
+			sum_coordinates[coordinate] ^= enc_lambda_set[i][coordinate];
+		}
+	}
+	printf("Verification of the distinguisher's property (xor coordinates for a lambda set is the vector 0):\n");
+	print_array(sum_coordinates);
+
+	printf("\n");
+}
+
+int main(int argc, char **argv) {
+	// AES 3 10-rounds
+	// Test with test values provided in the standard document
+	uint8_t block[AES_BLOCK_SIZE] = {0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a,
+									 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2,
+									 0xe0, 0x37, 0x07, 0x34};
+	const uint8_t key[AES_128_KEY_SIZE] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae,
+										   0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88,
+										   0x09, 0xcf, 0x4f, 0x3c};
+
+	printf("Test for the encryption of a block with a key (9¹/² rounds):\n");
+	printf("Block and key (before) :\n");
+	print_array(block);
+	print_array(key);
+
+	aes128_enc(block, key, 10, 0);
+
+	printf("Block and key (after):\n");
+	print_array(block);
+	print_array(key);
+	printf("\n\n");
+
+	printf("--- EXERCICE 1 : WARMING UP ---\n");
+	question1();
+	question2();
+	question3();
+
+	printf("--- EXERCICE 2 : KEY-RECOVERY ATTACK FOR 3¹/²-ROUND AES ---\n");
 	aes128_attack();
 }
