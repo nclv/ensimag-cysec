@@ -252,3 +252,6 @@ The second attack (to crash the execution) is not possible anymore : `fgets` onl
 
 - [SEI CERT C Coding Standard](https://wiki.sei.cmu.edu/confluence/display/c/SEI+CERT+C+Coding+Standard)
 - [INT32-C. Ensure that operations on signed integers do not result in overflow](https://wiki.sei.cmu.edu/confluence/display/c/INT32-C.+Ensure+that+operations+on+signed+integers+do+not+result+in+overflow)
+- [MEM30-C. Do not access freed memory](https://wiki.sei.cmu.edu/confluence/display/c/MEM30-C.+Do+not+access+freed+memory)
+- [ARR30-C. Do not form or use out-of-bounds pointers or array subscripts : Apparently accessible out-of-range index](https://wiki.sei.cmu.edu/confluence/display/c/ARR30-C.+Do+not+form+or+use+out-of-bounds+pointers+or+array+subscripts#ARR30C.Donotformoruseoutofboundspointersorarraysubscripts-ApparentlyAccessibleOut-of-RangeIndex)
+- [ERR33-C. Detect and handle standard library errors : on mallocs](https://wiki.sei.cmu.edu/confluence/display/c/ERR33-C.+Detect+and+handle+standard+library+errors)
