@@ -1,5 +1,7 @@
 # Report
 
+By **Elina Houde** and **Nicolas Vincent**.
+
 ## Exercise 1 : Optimize
 
 ### Q1
@@ -26,6 +28,7 @@ if (a > INT_MAX - b) {
 
 ### Q2
 
+**Print "You win!" or infinite loop**
 ```bash
 $ ./winloose 1 8
 address of x: 0x7ffe19c954db
@@ -38,43 +41,106 @@ address of t1: 0x7ffe19c954d3
 5 : 0x7ffe19c954d8: 1
 6 : 0x7ffe19c954d9: 1
 7 : 0x7ffe19c954da: 1
-8 : 0x7ffe19c954db: 1
+8 : 0x7ffe19c954db: 1  # address of x
 value of x : 0x7ffe19c954db: 1
 You win !
 ```
-We win because the variable `x` was overwritten by the last iteration of the loop.
+We win because the variable `x` was overwritten by the last iteration of the loop. When the second parameter is 8 (the size of the array + 1), we are sure to win because we overwrite only x.
 
 ```bash
-$ ./winloose 9 23342346
-address of x: 0x7ffc56d980fb
-address of t1: 0x7ffc56d980f3
-0 : 0x7ffc56d980f3: 9
-1 : 0x7ffc56d980f4: 9
-2 : 0x7ffc56d980f5: 9
-3 : 0x7ffc56d980f6: 9
-4 : 0x7ffc56d980f7: 9
-5 : 0x7ffc56d980f8: 9
-6 : 0x7ffc56d980f9: 9
-7 : 0x7ffc56d980fa: 9
-8 : 0x7ffc56d980fb: 9
-9 : 0x7ffc56d980fc: 9
-2314 : 0x7ffc56d989fd: 0  # i value is overwritten
-2315 : 0x7ffc56d989fe: 9
-2316 : 0x7ffc56d989ff: 9
+address of x: 0x7fffca78066b
+address of t1: 0x7fffca780663
+Before modification - 0 : 0x7fffca780663: -54
+0 : 0x7fffca780663: 9
+Before modification - 1 : 0x7fffca780664: -1
+1 : 0x7fffca780664: 9
+Before modification - 2 : 0x7fffca780665: 127
+2 : 0x7fffca780665: 9
+Before modification - 3 : 0x7fffca780666: 0
+3 : 0x7fffca780666: 9
+Before modification - 4 : 0x7fffca780667: 0
+4 : 0x7fffca780667: 9
+Before modification - 5 : 0x7fffca780668: 0
+5 : 0x7fffca780668: 9
+Before modification - 6 : 0x7fffca780669: 0
+6 : 0x7fffca780669: 9
+Before modification - 7 : 0x7fffca78066a: 0
+7 : 0x7fffca78066a: 9
+Before modification - 8 : 0x7fffca78066b: 0
+8 : 0x7fffca78066b: 9
+Before modification - 9 : 0x7fffca78066c: 9  # i value is overwritten :
+9 : 0x7fffca78066c: 9                        # old value=9 and new value=9
+Before modification - 10 : 0x7fffca78066d: 0
+2314 : 0x7fffca780f6d: 0                      # i value is overwritten again
+Before modification - 2315 : 0x7fffca780f6e: 0
+2315 : 0x7fffca780f6e: 9
+Before modification - 2316 : 0x7fffca780f6f: 0
+2316 : 0x7fffca780f6f: 9
+Before modification - 2317 : 0x7fffca780f70: 0
+2317 : 0x7fffca780f70: 9
+Before modification - 2318 : 0x7fffca780f71: 0
+2318 : 0x7fffca780f71: 9
 ...
-3586 : 0x7ffc56d98ef5: 9
-3587 : 0x7ffc56d98ef6: 9
-3588 : 0x7ffc56d98ef7: 9
-3589 : 0x7ffc56d98ef8: 0
-3590 : 0x7ffc56d98ef9: 0
-0x7ffc56d980fb: 9
+Before modification - 7166 : 0x7fffca782261: 57
+7166 : 0x7fffca782261: 9
+Before modification - 7167 : 0x7fffca782262: 0
+7167 : 0x7fffca782262: 0
+Before modification - 7168 : 0x7fffca782263: 50
+7168 : 0x7fffca782263: 0                         # i value is overwritten again => break the loop
+0x7fffca78066b: 9
 You win !
 ```
-We can overwrite more addresses. Sometimes we win. Otherwise we get `Erreur de segmentation`.
+If the second parameter is greater than 8, we can overwrite more addresses. Sometimes we win. Otherwise we get `Erreur de segmentation`.
+
+
+**Print "You loose"**
 
 We loose when the variable `x` wasn't overwritten ie. the second parameter is less than the size of the array (`8`).
 
-We can have an infinite loop when the second parameter is greater than 8, the value of `i` is overwritten and if this value is less than the second parameter it loops.
+
+**Infinite loop**
+
+We can have an infinite loop when the second parameter is greater than 8 (the value of `i` is overwritten) and less than the second parameter. For instance, with the arguments 1 9 :
+
+```bash
+$ ./winloose 1 9
+address of x: 0x7ffe510b05ab
+address of t1: 0x7ffe510b05a3
+Before modification - 0 : 0x7ffe510b05a3: 81
+0 : 0x7ffe510b05a3: 8
+Before modification - 1 : 0x7ffe510b05a4: -2
+1 : 0x7ffe510b05a4: 8
+Before modification - 2 : 0x7ffe510b05a5: 127
+2 : 0x7ffe510b05a5: 8
+Before modification - 3 : 0x7ffe510b05a6: 0
+3 : 0x7ffe510b05a6: 8
+Before modification - 4 : 0x7ffe510b05a7: 0
+4 : 0x7ffe510b05a7: 8
+Before modification - 5 : 0x7ffe510b05a8: 0
+5 : 0x7ffe510b05a8: 8
+Before modification - 6 : 0x7ffe510b05a9: 0
+6 : 0x7ffe510b05a9: 8
+Before modification - 7 : 0x7ffe510b05aa: 0
+7 : 0x7ffe510b05aa: 8
+Before modification - 8 : 0x7ffe510b05ab: 0
+8 : 0x7ffe510b05ab: 8
+Before modification - 9 : 0x7ffe510b05ac: 9  # i value 
+8 : 0x7ffe510b05ab: 8                        # is overwritten 
+Before modification - 9 : 0x7ffe510b05ac: 9
+8 : 0x7ffe510b05ab: 8
+```
+
+We have the following execution stack :
+
+| 3  | 2          | 1 | 0 |(bytes) |
+| :---------------: |:---------------:| :-----:| :-----:| :----:|
+| t[3]  |   t[2]   |    t[1]   |    t[0]  | -> address 0x7ffe510b05a3 to 0x7ffe510b05a6 |
+|   t[7]  |   t[6]   |    t[5]   |    t[4]  | -> address 0x7ffe510b05a7 to 0x7ffe510b05aa |
+|         |          |     i     |     x    | -> address 0x7ffe510b05ab to 0x7ffe510b05ae |
+
+x is stored after the array t. Then i is stored.
+
+So, when the program arrives to the last turns of the loop (i=8), we overwrite t[8] which corresponds to x. Then i=9, we overwrite t[9], which corresponds to i. So, the value of i, which is 9, becomes 8. Then, we executes again the same operation for i=9, then i=8, i=9...
 
 ### Q3
 
@@ -247,6 +313,9 @@ int IsPasswordOK(void)
 ```
 
 The second attack (to crash the execution) is not possible anymore : `fgets` only copy at most the number of characters precised in parameter, that avoid stack overflow.
+
+## Explanation about the subrule XX
+=> rule 04, 06, 08 of 12 from the web site
 
 ## Links
 
