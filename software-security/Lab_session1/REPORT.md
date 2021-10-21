@@ -314,8 +314,42 @@ int IsPasswordOK(void)
 
 The second attack (to crash the execution) is not possible anymore : `fgets` only copy at most the number of characters precised in parameter, that avoid stack overflow.
 
-## Explanation about the subrule XX
-=> rule 04, 06, 08 of 12 from the web site
+## Explanation about the rule O4. Integers (INT) - Subrule INT30-C
+
+**Problem:**
+
+When operations are computed on unsigned integers, if the resulting value is greater than the max size of an unsigned integers, the resulting value cannot be represented by an unsigned integer. In this case, this value is reduced modulo the max size of the unsigned integer type. This behavior is called unsigned integer wrapping and can result to an unexpected value which can lead to  an exploitable vulnerability. For instance, if the resulting value may be used to allocate memory, the program can allocate insufficient memory for a subsequent operation.
+
+**Solution for the Addition (Precondition Test):**
+```C
+void func(unsigned int ui_a, unsigned int ui_b) {
+  unsigned int usum;
+  if (UINT_MAX - ui_a < ui_b) {
+    /* Handle error */
+  } else {
+    usum = ui_a + ui_b;
+  }
+  /* ... */
+}
+```
+We can test the operand before the operation to guarantee there is no possibility of unsigned wrap: for this, we can check that, by removing the first operand from the max value of the unsigned integer type, the result of this substraction is greater than the second operand.
+
+In fact, we have a wrap if ui_a + ui_b > UINT_MAX i.e. ui_b > UINT_MAX - ui_a.
+
+
+**Solution for the Addition (Postcondition Test):**
+```C
+void func(unsigned int ui_a, unsigned int ui_b) {
+  unsigned int usum = ui_a + ui_b;
+  if (usum < ui_a) {
+    /* Handle error */
+  }
+  /* ... */
+}
+```
+
+Otherwise, we can check after the computation the result of the operation to ensure there was no wrap. As we compute addition on two unsigned integers, the result may to be greater than each operand. So, we just need to check this property.
+
 
 ## Links
 
@@ -324,3 +358,4 @@ The second attack (to crash the execution) is not possible anymore : `fgets` onl
 - [MEM30-C. Do not access freed memory](https://wiki.sei.cmu.edu/confluence/display/c/MEM30-C.+Do+not+access+freed+memory)
 - [ARR30-C. Do not form or use out-of-bounds pointers or array subscripts : Apparently accessible out-of-range index](https://wiki.sei.cmu.edu/confluence/display/c/ARR30-C.+Do+not+form+or+use+out-of-bounds+pointers+or+array+subscripts#ARR30C.Donotformoruseoutofboundspointersorarraysubscripts-ApparentlyAccessibleOut-of-RangeIndex)
 - [ERR33-C. Detect and handle standard library errors : on mallocs](https://wiki.sei.cmu.edu/confluence/display/c/ERR33-C.+Detect+and+handle+standard+library+errors)
+- [INT30-C. Ensure that unsigned integer operations do not wrap](https://wiki.sei.cmu.edu/confluence/display/c/INT30-C.+Ensure+that+unsigned+integer+operations+do+not+wrap)
