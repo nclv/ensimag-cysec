@@ -3,7 +3,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "utils.h"
+
+// S^{-alpha} with alpha = 8 perform a circular shift of 8 bits to the right ie.
+// 16 bits to the left mod 24 bits.
 #define ROTL24_16(x) ((((x) << 16) ^ ((x) >> 8)) & 0xFFFFFF)
+// S^beta with beta = 3 performs a circular shift of 3 bits to the left.
 #define ROTL24_3(x) ((((x) << 3) ^ ((x) >> 21)) & 0xFFFFFF)
 
 #define ROTL24_8(x) ((((x) << 8) ^ ((x) >> 16)) & 0xFFFFFF)
@@ -22,24 +27,53 @@ void speck48_96(const uint32_t k[4], const uint32_t p[2], uint32_t c[2]) {
 
 	rk[0] = k[0];
 
+	// ciphertext output
 	c[0] = p[0];
 	c[1] = p[1];
 
 	/* full key schedule */
 	for (unsigned i = 0; i < 22; i++) {
+		// l_{i+m-1} in the spec.
 		uint32_t new_ell = ((ROTL24_16(ell[0]) + rk[i]) ^ i) &
 						   0xFFFFFF; // addition (+) is done mod 2**24
+		// k[i+1] in the spec.
 		rk[i + 1] = ROTL24_3(rk[i]) ^ new_ell;
 		ell[0] = ell[1];
 		ell[1] = ell[2];
 		ell[2] = new_ell;
 	}
 
+	// 23 rounds of encryption
 	for (unsigned i = 0; i < 23; i++) {
-		/* FILL ME */
+		c[0] = ((ROTL24_16(c[0]) + c[1]) ^ rk[i]) & 0xFFFFFF;
+		c[1] = ROTL24_3(c[1]) ^ c[0];
 	}
 
 	return;
+}
+
+/*
+ * test the speck48_96 function
+ */
+int test_speck48_96(void) {
+	const uint32_t k[4] = {
+		0x020100,
+		0x0a0908,
+		0x121110,
+		0x1a1918,
+	};
+	const uint32_t p[2] = {0x6d2073, 0x696874};
+	uint32_t c[2] = {0};
+
+	uint32_t expected[2] = {0x735e10, 0xb6445d};
+	printf("Expected ciphertext :\n");
+	print_array(expected);
+
+	speck48_96(k, p, c);
+	printf("Ciphertext :\n");
+	print_array(c);
+
+	return assert_equals(c, expected);
 }
 
 /* the inverse cipher */
@@ -106,6 +140,10 @@ void attack(void) { /* FILL ME */
 int main(int argc, char **argv) {
 	(void)argc;
 	(void)argv;
+
+	int err = test_sp48();
+	printf("Test speck48_96 is correct: %s\n", err == 0 ? "true" : "false");
+
 	attack();
 
 	return 0;
