@@ -1,5 +1,5 @@
 
-#ifndef __XOSHIRO256starstar___
-#define __XOSHIRO256starstar___
+#ifndef __SECOND_PREIM___
+#define __SECOND_PREIM___
 
 #endif
