@@ -2,12 +2,13 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
-#include "utils.h"
 #include "hash_table.h"
-#include "xoshiro256starstar.h"
 #include "second_preim_48_fillme.h"
 #include "uthash.h" // https://troydhanson.github.io/uthash/
+#include "utils.h"
+#include "xoshiro256starstar.h"
 
 // S^{-alpha} with alpha = 8 perform a circular shift of 8 bits to the right ie.
 // 16 bits to the left mod 24 bits. Used in the speck48_96 encryption.
@@ -269,6 +270,8 @@ void find_exp_mess(uint32_t m1[4], uint32_t m2[4]) {
 	uint64_t seed[4] = {2, 0, 2, 1};
 	xoshiro256starstar_random_set(seed);
 
+	printf("Building the m1 messages set\n");
+
 	hash_msg *hash_table = NULL;
 	hash_msg *hi = NULL;
 
@@ -285,7 +288,7 @@ void find_exp_mess(uint32_t m1[4], uint32_t m2[4]) {
 		h = cs48_dm(m, IV);
 		// Check that this entry was not yet inserted in the hash table
 		HASH_FIND(hh, hash_table, &h, sizeof(uint64_t), hi);
-		if (hi != NULL) {
+		if (hi == NULL) {
 			hi = new_hash_entry(h, m);
 			HASH_ADD(hh, hash_table, h, sizeof(uint64_t), hi);
 		}
@@ -293,9 +296,20 @@ void find_exp_mess(uint32_t m1[4], uint32_t m2[4]) {
 		hi = NULL;
 	}
 
+	printf("Search the hash table for a collision\n");
+
+	time_t endwait;
+	time_t start = time(NULL);
+	time_t seconds = 60 * 20; // end loop after 10 minutes
+
+	endwait = start + seconds;
+
+	printf("start time is : %s", ctime(&start));
+
 	// We try to find a collision of h = get_cs48_dm_fp(m) with an entry of the
 	// hash table.
-	while (hi == NULL) {
+	// TODO: add a timer
+	while (hi == NULL && (start < endwait)) {
 		// Build the m2 message
 		random_message(m);
 		// Get the fixed point
@@ -303,15 +317,27 @@ void find_exp_mess(uint32_t m1[4], uint32_t m2[4]) {
 
 		// Check that this entry was not yet inserted in the hash table
 		HASH_FIND(hh, hash_table, &h, sizeof(uint64_t), hi);
+		start = time(NULL);
 	}
 
-	// m contains m2, hi contains m1
-	for (uint8_t i = 0; i < 4; ++i) {
-		m1[i] = hi->m[i];
-		m2[i] = m[i];
+	printf("end time is : %s", ctime(&start));
+
+	printf("Collision search ended\n");
+
+	if (hi != NULL) {
+		printf("Collision found!!!\n");
+		// m contains m2, hi contains m1
+		for (uint8_t i = 0; i < 4; ++i) {
+			m1[i] = hi->m[i];
+			m2[i] = m[i];
+		}
+	} else {
+		printf("Collision not found...\n");
 	}
 
 	delete_all(hash_table);
+
+	printf("Hash table was deleted\n");
 }
 
 /*

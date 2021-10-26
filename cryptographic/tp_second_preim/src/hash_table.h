@@ -12,5 +12,6 @@ typedef struct hash_msg {
 
 hash_msg *new_hash_entry(uint64_t h, uint32_t m[4]);
 void delete_all(hash_msg *hash_table);
+void print_hash_msg(hash_msg *hash_table_entry);
 
 #endif

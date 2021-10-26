@@ -1,4 +1,5 @@
 #include "hash_table.h"
+#include <stdio.h>
 
 hash_msg *new_hash_entry(uint64_t h, uint32_t m[4]) {
 	hash_msg *ht = malloc(sizeof(*ht));
@@ -20,4 +21,11 @@ void delete_all(hash_msg *hash_table) {
 				 current_hash); /* delete it (hash_table advances to next) */
 		free(current_hash);		/* free it */
 	}
+}
+
+void print_hash_msg(hash_msg *hash_table_entry) {
+    printf("\nkey: %lu\n", hash_table_entry->h);
+    for (uint8_t i = 0; i < 4; ++i) {
+        printf("%d", hash_table_entry->m[i]);
+    }
 }
