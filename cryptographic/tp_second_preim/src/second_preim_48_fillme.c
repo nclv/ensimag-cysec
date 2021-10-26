@@ -232,11 +232,41 @@ int test_cs48_dm_fp(void) {
 	return expected == fp ? 0 : -1;
 }
 
+// 
+// h = get_cs48_dm_fp(m2) = cs48_dm(m1, IV)
+// 
+
+// https://troydhanson.github.io/uthash/
+
+// Random number generator initialization
+// xoshiro256starstar_random_set(uint64_t iv[4]) with a fixed IV for reproducibility
+
+// m size is 24 bits so do it 1 << 24
+// Build m1
+// m1[i] = (uint32_t)(xoshiro256starstar_random() & 0xFFFFFF) for 0 <= i < 4
+// 
+// h = cs48_dm(m1, IV), insert in the HT if not present
+
+// while not found 
+// Build m2
+// m2[i] = (uint32_t)(xoshiro256starstar_random() & 0xFFFFFF) for 0 <= i < 4
+//
+// fp = get_cs48_dm_fp(m2), find in hash table
+// if found return m1 (from the hash table) and m2
+
+
+// void test_em(void)
+// hs48(m, 1, 0, 1) message len = 1 * (4 * 24) = 96, padding zero, verbose 1
+
 /* Finds a two-block expandable message for hs48, using a fixed-point
  * That is, computes m1, m2 s.t. hs48_nopad(m1||m2) = hs48_nopad(m1||m2^*),
  * where hs48_nopad is hs48 with no padding */
 void find_exp_mess(uint32_t m1[4], uint32_t m2[4]) { /* FILL ME */
 }
+
+// Search h in Hash Table
+// If not present inserts it
+// else if present: collision
 
 void attack(void) { /* FILL ME */
 }
