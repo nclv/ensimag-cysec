@@ -35,3 +35,16 @@ int random_m(uint32_t m[4]) {
 
 	return 0;
 }
+
+/*
+ * Set the message @m to a random message.
+ */
+void random_message(uint32_t m[4]) {
+    
+	uint64_t m01 = xoshiro256starstar_random();
+	uint64_t m23 = xoshiro256starstar_random();
+    m[0] = (uint32_t) m01 & 0xFFFFFF;
+    m[1] = (uint32_t) (m01 >> 24) & 0xFFFFFF;
+    m[0] = (uint32_t) m23 & 0xFFFFFF;
+    m[3] = (uint32_t) (m23 >> 24) & 0xFFFFFF;
+}

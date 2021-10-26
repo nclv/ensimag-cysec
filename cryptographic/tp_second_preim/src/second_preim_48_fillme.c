@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "utils.h"
+#include "uthash.h"  // https://troydhanson.github.io/uthash/
 
 // S^{-alpha} with alpha = 8 perform a circular shift of 8 bits to the right ie.
 // 16 bits to the left mod 24 bits.
@@ -235,6 +236,8 @@ int test_cs48_dm_fp(void) {
  * That is, computes m1, m2 s.t. hs48_nopad(m1||m2) = hs48_nopad(m1||m2^*),
  * where hs48_nopad is hs48 with no padding */
 void find_exp_mess(uint32_t m1[4], uint32_t m2[4]) { /* FILL ME */
+	xoshiro256starstar_random_set();
+	random_message();
 }
 
 void attack(void) { /* FILL ME */
