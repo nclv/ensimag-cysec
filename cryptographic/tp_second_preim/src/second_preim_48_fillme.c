@@ -7,11 +7,12 @@
 #include "uthash.h"  // https://troydhanson.github.io/uthash/
 
 // S^{-alpha} with alpha = 8 perform a circular shift of 8 bits to the right ie.
-// 16 bits to the left mod 24 bits.
+// 16 bits to the left mod 24 bits. Used in the speck48_96 encryption.
 #define ROTL24_16(x) ((((x) << 16) ^ ((x) >> 8)) & 0xFFFFFF)
 // S^beta with beta = 3 performs a circular shift of 3 bits to the left.
+// Used in the speck48_96 encryption.
 #define ROTL24_3(x) ((((x) << 3) ^ ((x) >> 21)) & 0xFFFFFF)
-
+// Inverse operations in the decryption function : S^alpha and S^{-beta}
 #define ROTL24_8(x) ((((x) << 8) ^ ((x) >> 16)) & 0xFFFFFF)
 #define ROTL24_21(x) ((((x) << 21) ^ ((x) >> 3)) & 0xFFFFFF)
 
