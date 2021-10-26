@@ -3,8 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "xoshiro256starstar.h"
 #include "utils.h"
+#include "hash_table.h"
+#include "xoshiro256starstar.h"
 #include "second_preim_48_fillme.h"
 #include "uthash.h" // https://troydhanson.github.io/uthash/
 
@@ -19,34 +20,6 @@
 #define ROTL24_21(x) ((((x) << 21) ^ ((x) >> 3)) & 0xFFFFFF)
 
 #define IV 0x010203040506ULL
-
-typedef struct hash_msg {
-    uint64_t h;  // hash table key
-    uint32_t m[4];  // message
-    UT_hash_handle hh; /* makes this structure hashable */
-} hash_msg;
-
-hash_msg *new_hash_entry(uint64_t h, uint32_t m[4]) {
-	hash_msg *ht = malloc(sizeof(*ht));
-
-	ht->h = h;
-
-	for (uint8_t i = 0; i < 4; ++i) {
-		ht->m[i] = m[i];
-	}
-
-	return ht;
-}
-
-void delete_all(hash_msg *hash_table) {
-	hash_msg *current_hash, *tmp;
-
-	HASH_ITER(hh, hash_table, current_hash, tmp) {
-		HASH_DEL(hash_table,
-				 current_hash); /* delete it (hash_table advances to next) */
-		free(current_hash);		/* free it */
-	}
-}
 
 /*
  * the 96-bit key is stored in four 24-bit chunks in the low bits of k[0]...k[3]

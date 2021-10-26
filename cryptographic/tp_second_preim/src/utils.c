@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "utils.h"
 #include "xoshiro256starstar.h"
+#include "utils.h"
 
 int assert_equals(uint32_t result[2], uint32_t expected[2]) {
     for (size_t i = 0; i < 2; ++i) {
