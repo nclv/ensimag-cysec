@@ -171,11 +171,11 @@ int test_cs48_dm(void) {
 
 	const uint64_t expected = 0x7FDD5A6EB248ULL;
 	printf("Expected result of the compression function :\n");
-	printf("%llx\n", expected);
+	printf("%lx\n", expected);
 
 	uint64_t c = cs48_dm(m, 0);
 	printf("Result :\n");
-	printf("%llx\n", c);
+	printf("%lx\n", c);
 
 	return (c == expected) ? 0 : -1;
 }
@@ -192,7 +192,7 @@ uint64_t hs48(const uint32_t *m, uint64_t fourlen, int padding, int verbose) {
 	for (uint64_t i = 0; i < fourlen; i++) {
 		h = cs48_dm(mp, h);
 		if (verbose)
-			printf("@%llu : %06X %06X %06X %06X => %06llX\n", i, mp[0], mp[1],
+			printf("@%llu : %06X %06X %06X %06X => %06lX\n", i, mp[0], mp[1],
 				   mp[2], mp[3], h);
 		mp += 4;
 	}
@@ -204,7 +204,7 @@ uint64_t hs48(const uint32_t *m, uint64_t fourlen, int padding, int verbose) {
 		pad[3] = 0;
 		h = cs48_dm(pad, h);
 		if (verbose)
-			printf("@%llu : %06X %06X %06X %06X => %06llX\n", fourlen, pad[0],
+			printf("@%lu : %06X %06X %06X %06X => %06lX\n", fourlen, pad[0],
 				   pad[1], pad[2], pad[3], h);
 	}
 
@@ -227,9 +227,12 @@ uint64_t get_cs48_dm_fp(uint32_t m[4]) { /* FILL ME */
  */
 int test_cs48_dm_fp(void) {
 	uint32_t m[4] = {0};
+
 	random_m(m);
+
 	printf("Message: ");
 	print_array(m, 4);
+
 	uint64_t fp = get_cs48_dm_fp(m);
 	uint64_t expected = cs48_dm(m, fp);
 
@@ -300,7 +303,7 @@ void find_exp_mess(uint32_t m1[4], uint32_t m2[4]) {
 
 	time_t endwait;
 	time_t start = time(NULL);
-	time_t seconds = 60 * 20; // end loop after 10 minutes
+	time_t seconds = 60 * 2; // end loop after 2 minutes
 
 	endwait = start + seconds;
 
@@ -320,7 +323,6 @@ void find_exp_mess(uint32_t m1[4], uint32_t m2[4]) {
 	}
 
 	printf("end time is : %s", ctime(&start));
-
 	printf("Collision search ended\n");
 
 	if (hi != NULL) {
@@ -343,9 +345,12 @@ void find_exp_mess(uint32_t m1[4], uint32_t m2[4]) {
  * test the find_exp_mess function
  */
 int test_em(void) {
+	// m = m1 || m2 || m1 || m2
 	uint32_t m[16];
+	// Fill m[0..8]
 	find_exp_mess(m, &(m[4]));
 
+	// Fill m[9..16]
 	for (size_t i = 4; i < 8; i++) {
 		m[i + 4] = m[i];
 		m[i + 8] = m[i];
@@ -354,9 +359,10 @@ int test_em(void) {
 	uint64_t h = hs48(
 		m, 1, 0, 1); // message len = 1 * (4 * 24) = 96, padding zero, verbose 1
 	uint64_t h2 = hs48(
-		m, 2, 0, 1); // message len = 1 * (4 * 24) = 96, padding zero, verbose 1
+		m, 2, 0, 1); // message len = 2 * (4 * 24) = 96, padding zero, verbose 1
 	uint64_t h3 = hs48(
-		m, 4, 0, 1); // message len = 1 * (4 * 24) = 96, padding zero, verbose 1
+		m, 4, 0, 1); // message len = 4 * (4 * 24) = 96, padding zero, verbose 1
+
 	return (h == h2) && (h == h3) ? 0 : -1;
 }
 
