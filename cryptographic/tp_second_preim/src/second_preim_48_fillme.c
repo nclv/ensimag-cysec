@@ -370,27 +370,33 @@ int test_em(void) {
 // If not present inserts it
 // else if present: collision
 
-void attack(void) { /* FILL ME */
+void attack(void) {
 	// Compute mess
-	uint32_t mess[1 << 20];
-	for (int i = 0; i < (1 << 20); i+=4) {
+	uint32_t *mess = malloc((1 << 20) * sizeof(*mess));
+	if (mess == NULL) {
+		fprintf(stderr, "couldn't allocate mess");
+		return;
+	}
+
+	for (int i = 0; i < (1 << 20); i += 4) {
 		mess[i + 0] = i;
 		mess[i + 1] = 0;
 		mess[i + 2] = 0;
 		mess[i + 3] = 0;
 	}
+	printf("%lx\n", hs48(mess, (1 << 18), 0, 0));
 
 	// Compute the hi and store them in the hash table
 	hash_msg *hash_table = NULL;
 	hash_msg *hi = NULL;
 	uint64_t h = IV;
-	for (size_t i = 0; i < (1 << 20); i += 4) {
+	for (size_t i = 0; i < (1 << 18); i++) {
 		// Get the compression function output
-		h = cs48_dm(mess + i, h);
+		h = cs48_dm(mess + 4 * i, h);
 		// Check that this entry was not yet inserted in the hash table
 		HASH_FIND(hh, hash_table, &h, sizeof(uint64_t), hi);
 		if (hi == NULL) {
-			hi = new_hash_entry(h, mess + i);
+			hi = new_hash_entry(h, mess + 4 * i);
 			hi->i = i;
 			HASH_ADD(hh, hash_table, h, sizeof(uint64_t), hi);
 		}
@@ -398,18 +404,23 @@ void attack(void) { /* FILL ME */
 		hi = NULL;
 	}
 
-
-	uint64_t seed[4] = {2, 0, 2, 1};
-	xoshiro256starstar_random_set(seed);
 	printf("Begin of the attack\n");
 
 	// Find an expandable message
-	uint32_t mess2[1 << 20];
-	find_exp_mess(mess2, &(mess2[4]));  // We have the fixed point fp stored in mess2 + 4
-	
+	uint32_t *mess2 = malloc((1 << 20) * sizeof(*mess2));
+	if (mess2 == NULL) {
+		fprintf(stderr, "couldn't allocate mess2");
+		return;
+	}
+
+	find_exp_mess(mess2, mess2 + 4);
+	uint64_t fp = get_cs48_dm_fp(mess2 + 4);
+
 	// Search for a collision block
 	uint32_t cm[4];
-	
+	uint64_t seed[4] = {2, 0, 2, 1};
+	xoshiro256starstar_random_set(seed);
+
 	printf("Search for a collision\n");
 	time_t endwait;
 	time_t start = time(NULL);
@@ -425,7 +436,7 @@ void attack(void) { /* FILL ME */
 		// Build the m2 message
 		random_message(cm);
 		// Get the hash
-		h = cs48_dm(cm, mess2 + 4);
+		h = cs48_dm(cm, fp);
 
 		// Check that this entry was not yet inserted in the hash table
 		HASH_FIND(hh, hash_table, &h, sizeof(uint64_t), hi);
@@ -440,12 +451,13 @@ void attack(void) { /* FILL ME */
 		printf("Collision found!!!\n");
 
 		printf("Build of the second preimage message\n");
-		// For a collision on hi, we need to lenghten the expendable message to i-1 blocks
+		// For a collision on hi, we need to lenghten the expendable message to
+		// i-1 blocks
 		for (int i = 8; i < hi->i * 4; i += 4) {
-			mess2[i] = mess[4];
-			mess2[i + 1] = mess[5];
-			mess2[i + 2] = mess[6];
-			mess2[i + 3] = mess[7];
+			mess2[i] = mess2[4];
+			mess2[i + 1] = mess2[5];
+			mess2[i + 2] = mess2[6];
+			mess2[i + 3] = mess2[7];
 		}
 
 		// Then, we copy the collision block in mess2
@@ -462,9 +474,16 @@ void attack(void) { /* FILL ME */
 		printf("Collision not found...\n");
 	}
 
-	delete_all(hash_table);
+	//printf("%ld\n", hs48(mess, (hi->i + 1), 0, 0));
+	//printf("%ld\n", hs48(mess2, (hi->i + 1), 0, 0));
 
+	delete_all(hash_table);
 	printf("Hash table was deleted\n");
+
+	printf("Test: %s\n\n",
+		   hs48(mess, (1 << 18), 0, 0) == hs48(mess2, (1 << 18), 0, 0)
+			   ? "true"
+			   : "false");
 }
 
 void part1() {
@@ -491,14 +510,13 @@ void part2() {
 		   err == 0 ? "true" : "false");*/
 
 	attack();
-
 }
 
 int main(int argc, char **argv) {
 	(void)argc;
 	(void)argv;
 
-	part1();
+	// part1();
 
 	part2();
 

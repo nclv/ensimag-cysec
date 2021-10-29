@@ -7,7 +7,7 @@
 typedef struct hash_msg {
     uint64_t h;  // hash table key
     uint32_t m[4];  // message
-    uint32_t i;  // position of the hash in the his
+    uint32_t i;  // position of the hash in the his (begins to 0)
     UT_hash_handle hh; /* makes this structure hashable */
 } hash_msg;
 
