@@ -78,7 +78,7 @@ It take our implementation 12 seconds to find and expandable message when measur
 
 ---
 
-We want quick insertion and search for a large number of entries. So we use a hash table : `uthash`.  
+We want quick insertion and search for a large number of entries. So we use a hash table : `uthash`. We could use `Packed Radix Tree` for decreasing the memory usage.
 We start by initilizing the random generator with a custom seed for reproducibility. Then we build the `m1` message set by calling `h = cs48_dm(m1, IV)` and store `(h, m1)` in the hash table.   
 We build the `m2` message set and try to find the fixed point in the hash table. We added a timer to break the search loop after 2 minutes.
 
