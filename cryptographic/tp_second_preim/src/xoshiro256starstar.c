@@ -34,7 +34,7 @@ void __my_little_xoshiro256starstar_initialization(uint64_t iv[4]) {
 }
 
 /* This function initializes one state with a key from /dev/urandom */
-void __my_little_xoshiro256starstar_unseeded_init() {
+void __my_little_xoshiro256starstar_unseeded_init(void) {
 	FILE *urd = fopen("/dev/urandom", "r");
 	uint64_t iv[4] = {1, 1, 1, 1};
 

@@ -2,29 +2,46 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
-#include "xoshiro256starstar.h"
 #include "utils.h"
+#include "xoshiro256starstar.h"
 
-int assert_equals(uint32_t result[2], uint32_t expected[2]) {
-    for (size_t i = 0; i < 2; ++i) {
-        if (result[i] != expected[i]) {
-            return -1;
-        }
-    }
-    return 0;
+/**
+ * @brief assert that the 2 arrays are equals
+ *
+ * @param actual
+ * @param expected
+ * @param actual_size
+ * @param expected_size
+ * @return int, 1 if equals, 0 otherwise
+ */
+int assert_equals(const void *actual, const void *expected, size_t actual_size,
+				  size_t expected_size) {
+
+	return actual_size == expected_size &&
+		   !memcmp(actual, expected, actual_size);
 }
 
-void print_array(uint32_t *array, size_t size) {
-    for (size_t i = 0; i < size; ++i) {
-        printf("%x - ", array[i]);
-    }
-    printf("\n");
+/**
+ * @brief print the content of @array
+ *
+ * @param array
+ * @param size
+ */
+void print_array(const uint32_t *array, size_t size) {
+	for (size_t i = 0; i < size; ++i) {
+		printf("%x - ", array[i]);
+	}
+	printf("\n");
 }
 
-/*
- * Set the message @m to a random message.
+/**
+ * @brief Initialize @m with a random message
+ *
+ * @param m
+ * @return int
  */
 int random_m(uint32_t m[4]) {
 	int fd = open("/dev/urandom", O_RDONLY);
@@ -38,15 +55,16 @@ int random_m(uint32_t m[4]) {
 	return 0;
 }
 
-/*
- * Set the message @m to a random message.
+/**
+ * @brief Initialize m with a random message
+ *
+ * @param m
  */
 void random_message(uint32_t m[4]) {
-    
 	uint64_t m01 = xoshiro256starstar_random();
 	uint64_t m23 = xoshiro256starstar_random();
-    m[0] = (uint32_t) m01 & 0xFFFFFF;
-    m[1] = (uint32_t) (m01 >> 24) & 0xFFFFFF;
-    m[0] = (uint32_t) m23 & 0xFFFFFF;
-    m[3] = (uint32_t) (m23 >> 24) & 0xFFFFFF;
+	m[0] = (uint32_t)m01 & 0xFFFFFF;
+	m[1] = (uint32_t)(m01 >> 24) & 0xFFFFFF;
+	m[2] = (uint32_t)m23 & 0xFFFFFF;
+	m[3] = (uint32_t)(m23 >> 24) & 0xFFFFFF;
 }
