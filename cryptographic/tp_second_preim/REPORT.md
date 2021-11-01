@@ -2,13 +2,12 @@
 
 ## Introductory notes
 
-**Objective :** find M' such that `H(M') = h_l` with `h_l = H(m_1||...||m_l)`.  
-If `M''` such that `H(M'') = h_i` then `H(M''||m_{i+1}||...||m_l) = h_l`.  
-Now the objective is to find `M''` such that there exist `i` verifying the previous equality.  
+**Objective :** given a l-block message M such that `H(M) = H(m_1||...||h_i)` with `i <= l`, if there is a i-block message `M'` such that `H(M') = h_i`, we may form the message `M''` such that `H(M'') = H(M'||m_{i+1}||...||m_l) = h_l`.  
+Now, the objective is to find `M'` such that there exist `i` verifying the previous equality.  
 
 Instead of having a single target we now have `l` targets : `2^n/l`.
 
-If the (final) padding doesn't match we don't have an equality anymore. So we use expandable messages.
+If the (final) padding, who depends on the length of the message, doesn't match, we don't have an equality anymore. So we use expandable messages.
 
 ## Compilation
 
@@ -68,12 +67,12 @@ Then we use the macro `STORE_48` to store `fp` in an `uint64_t`.
 
 While the birthday attack attempts to find two messages which *result in the same hash value*, the meet-in-the-middle attack seeks for collisions on the *intermediate chaining values* in iterated hash functions, resulting in a preimage or second preimage for the hash function.
 
-Starting from the initial value `IV` we compute `2^(n/2)` candidates for `h = cs48_dm(m1, IV)` and save them in a hash table. Then we generate about `2^(n/2)` fixed-points `(h, m2)` and check for a match in the hash table. Note that the value `h` is in general not under the control of the attacker. Due to the birthday paradox a match is likely to exist and we have constructed an expandable message with complexity of about `2^(n/2+1)`.
+Starting from the initial value `IV`, we compute `2^(n/2)` candidates for `h = cs48_dm(m1, IV)` and save them in a hash table. Then we generate about `2^(n/2)` fixed-points `(h, m2)` and check for a match in the hash table. Note that the value `h` is in general not under the control of the attacker. Due to the birthday paradox, a match is likely to exist and we have constructed an expandable message with complexity of about `2^(n/2+1)`.
 
-If an n-bit hash function has a maximum of `2^k` blocks in its messages, then this technique takes about `2^(n/2+1)`work to discover `(1, 2^k)`-expandable messages.
+If an n-bit hash function has a maximum of `2^k` n-bit blocks in its messages, then this technique takes about `2^(n/2+1)` work to discover `(1, 2^k)`-expandable messages.
 
 Hence, we can find a preimage for the hash function with a complexity of about `2^(n/2+1)` compression function evaluations and memory requirements of `2^(n/2)`. It is possible to reduce the memory requirements.  
-We recall here that in our case study `n=48` so `N = 2^(n/2) = (1 << 24)`.  
+We recall here that in our case study `n = 48` so `N = 2^(n/2) = (1 << 24)`.  
 It take our implementation 12 seconds to find and expandable message when measured with `time`.
 
 ---
@@ -82,11 +81,11 @@ We want quick insertion and search for a large number of entries. So we use a ha
 We start by initilizing the random generator with a custom seed for reproducibility. Then we build the `m1` message set by calling `h = cs48_dm(m1, IV)` and store `(h, m1)` in the hash table.   
 We build the `m2` message set and try to find the fixed point in the hash table. We added a timer to break the search loop after 2 minutes.
 
-For testing the function `find_exp_mess`, we build a message `m = m1 || m2 || m2 || m2` and check that the results of `hs48` with message len of 1, 2 and 4 are the same.
+For testing the function `find_exp_mess`, we build a message `m = m1 || m2 || ... || m2` and check that the results of `hs48` with message length of 1, 2 and 4 (i.e. 0, 1 and 3 copies of m2) are the same.
 
 ### Q2.
 
-Remember we want to construct a preimage for the target message `m` consisting of `t=4` message blocks.  
+Remember we want to construct a preimage for the target message `m` consisting of `t=2^18` message blocks.  
 
 First, we construct an expandable message. This will provide messages over a wide range of lengths and bypass Merkle-Damgard strengthening. The attack can reuse an expandable message as the base for finding second preimages on as many target messages as may be provided.  
 Then we carry out the long message attack from the end of that expandable message. To compensate all the message blocks that were skipped by the long message attack, **we expand the expandable message** in order to get a new message of the same length as the target message `m`, resulting in the same hash value. Hence, we get a second preimage for `m`.  

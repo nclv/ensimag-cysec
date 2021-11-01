@@ -37,7 +37,7 @@ void delete_all(hash_msg *hash_table) {
 }
 
 /*
- * print_hash_msg print @hash_table_entry on the terminal.
+ * print_hash_msg prints @hash_table_entry on the terminal.
  */
 void print_hash_msg(hash_msg *hash_table_entry) {
 	printf("\nkey: %lu\n", hash_table_entry->h);

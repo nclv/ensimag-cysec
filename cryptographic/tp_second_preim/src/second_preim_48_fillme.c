@@ -414,7 +414,7 @@ uint32_t *mess_18(void) {
 void attack(void) {
 	// Compute a message of 2^18 blocks
 	uint32_t *mess = mess_18();
-	printf("Hash of mess : %lx\n", hs48(mess, (1 << 18), 0, 0));
+	printf("Hash of mess with padding: %lx\n", hs48(mess, (1 << 18), 1, 0));
 
 	// Compute the hi and store them in the hash table
 	hash_msg *hash_table = NULL; /* important! initialize to NULL */
@@ -444,6 +444,7 @@ void attack(void) {
 		return;
 	}
 
+	printf("--> Build the expendable message\n");
 	find_exp_mess(mess2, mess2 + 4);
 	uint64_t fp = get_cs48_dm_fp(mess2 + 4);
 
@@ -452,7 +453,7 @@ void attack(void) {
 	uint64_t seed[4] = {2, 0, 2, 1};
 	xoshiro256starstar_random_set(seed);
 
-	printf("Search for a collision\n");
+	printf("--> Search for a collision for the h_i\n");
 	time_t endwait;
 	time_t start = time(NULL);
 	time_t seconds = 60 * 10; // end loop after 10 minutes
@@ -481,7 +482,7 @@ void attack(void) {
 	if (hi != NULL) {
 		printf("Collision found!!!\n");
 
-		printf("Build of the second preimage message\n");
+		printf("--> Build of the second preimage message\n");
 		// For a collision on hi, we need to lengthen the expandable message to
 		// i-1 blocks
 		for (size_t i = 8; i < hi->i * 4; i += 4) {
@@ -497,7 +498,7 @@ void attack(void) {
 		mess2[hi->i * 4 + 2] = cm[2];
 		mess2[hi->i * 4 + 3] = cm[3];
 
-		// We suffixes the remaining blocks identical to the ones of mess
+		// We suffixe the remaining blocks identical to the ones of mess
 		for (size_t i = (hi->i + 1) * 4; i < (1 << 20); i++) {
 			mess2[i] = mess[i];
 		}
@@ -514,7 +515,7 @@ void attack(void) {
 	printf("Hash table was deleted\n");
 
 	printf("Test: %s\n\n",
-		   hs48(mess, (1 << 18), 0, 0) == hs48(mess2, (1 << 18), 0, 0)
+		   hs48(mess, (1 << 18), 1, 0) == hs48(mess2, (1 << 18), 1, 0)
 			   ? "true"
 			   : "false");
 
@@ -542,6 +543,7 @@ void part1(void) {
 
 void part2(void) {
 	printf("\n---Part two: the attack---\n");
+	printf("\nBuild a expendable message\n");
 	int err = test_find_exp_mess();
 	printf("Test find_exp_mess is correct: %s\n\n", err ? "true" : "false");
 
