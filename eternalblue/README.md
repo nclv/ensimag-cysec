@@ -15,7 +15,7 @@ Use a vulnerable Windows 10 Pro 10240 x64 ISO to create the VM.
 File>Gestionnaire de réseau hôte>Create a new host-only network
 Network>Réseau privé hôte
 
-**Guest**
+**Guest** :
 Search 'Windows features' and activate SMBv1.
 Open file explorer, select network and activate the network discovery.
 Use `ipconfig` to get the guest IP.
