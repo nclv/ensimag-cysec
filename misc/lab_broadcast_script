@@ -1,0 +1,173 @@
+# Nmap 7.92 scan initiated Mon Nov 29 10:37:44 2021 as: nmap --script broadcast -o lab_broadcast_script 192.168.142.10/24
+Nmap scan report for ima-crypto.u-ga.fr (192.168.142.2)
+Host is up (0.014s latency).
+Not shown: 996 closed tcp ports (conn-refused)
+PORT     STATE SERVICE
+22/tcp   open  ssh
+80/tcp   open  http
+111/tcp  open  rpcbind
+2049/tcp open  nfs
+
+Nmap scan report for 192.168.142.10
+Host is up (0.014s latency).
+Not shown: 999 closed tcp ports (conn-refused)
+PORT     STATE SERVICE
+8086/tcp open  d-s-n
+
+Nmap scan report for 192.168.142.15
+Host is up (0.057s latency).
+Not shown: 997 closed tcp ports (conn-refused)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+
+Nmap scan report for 192.168.142.25
+Host is up (0.014s latency).
+Not shown: 998 closed tcp ports (conn-refused)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+902/tcp open  iss-realsecure
+
+Nmap scan report for 192.168.142.30
+Host is up (0.015s latency).
+Not shown: 998 closed tcp ports (conn-refused)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+902/tcp open  iss-realsecure
+
+Nmap scan report for 192.168.142.31
+Host is up (0.022s latency).
+Not shown: 998 closed tcp ports (conn-refused)
+PORT     STATE SERVICE
+22/tcp   open  ssh
+3000/tcp open  ppp
+
+Nmap scan report for 192.168.142.36
+Host is up (0.0095s latency).
+Not shown: 997 closed tcp ports (conn-refused)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+
+Nmap scan report for 192.168.142.41
+Host is up (0.013s latency).
+Not shown: 997 closed tcp ports (conn-refused)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+
+Nmap scan report for 192.168.142.71
+Host is up (0.028s latency).
+Not shown: 997 closed tcp ports (conn-refused)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+
+Nmap scan report for 192.168.142.77
+Host is up (0.014s latency).
+Not shown: 997 closed tcp ports (conn-refused)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+
+Nmap scan report for 192.168.142.83
+Host is up (0.020s latency).
+Not shown: 997 closed tcp ports (conn-refused)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+
+Nmap scan report for 192.168.142.100
+Host is up (0.038s latency).
+Not shown: 997 closed tcp ports (conn-refused)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+
+Nmap scan report for 192.168.142.110
+Host is up (0.014s latency).
+Not shown: 997 closed tcp ports (conn-refused)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+
+Nmap scan report for 192.168.142.111
+Host is up (0.013s latency).
+Not shown: 997 closed tcp ports (conn-refused)
+PORT     STATE SERVICE
+111/tcp  open  rpcbind
+902/tcp  open  iss-realsecure
+1234/tcp open  hotline
+
+Nmap scan report for 192.168.142.120
+Host is up (0.043s latency).
+Not shown: 997 closed tcp ports (conn-refused)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+
+Nmap scan report for 192.168.142.127
+Host is up (0.014s latency).
+Not shown: 997 closed tcp ports (conn-refused)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+
+Nmap scan report for 192.168.142.155
+Host is up (0.013s latency).
+Not shown: 997 closed tcp ports (conn-refused)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+
+Nmap scan report for 192.168.142.159
+Host is up (0.045s latency).
+Not shown: 997 closed tcp ports (conn-refused)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+
+Nmap scan report for 192.168.142.166
+Host is up (0.014s latency).
+Not shown: 997 closed tcp ports (conn-refused)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+
+Nmap scan report for 192.168.142.192
+Host is up (0.015s latency).
+Not shown: 997 closed tcp ports (conn-refused)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+
+Nmap scan report for 192.168.142.194
+Host is up (0.026s latency).
+Not shown: 997 closed tcp ports (conn-refused)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+
+Nmap scan report for 192.168.142.195
+Host is up (0.013s latency).
+Not shown: 998 closed tcp ports (conn-refused)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+902/tcp open  iss-realsecure
+
+# Nmap done at Mon Nov 29 10:38:50 2021 -- 256 IP addresses (22 hosts up) scanned in 66.73 seconds

@@ -1,0 +1,22 @@
+# Nmap 7.92 scan initiated Mon Nov 29 10:42:21 2021 as: nmap -A -T4 -o local_t4_scan 192.168.142.194
+Nmap scan report for 192.168.142.194
+Host is up (0.043s latency).
+Not shown: 997 closed tcp ports (conn-refused)
+PORT    STATE SERVICE         VERSION
+22/tcp  open  ssh             OpenSSH 8.0p1 Debian 6 (protocol 2.0)
+| ssh-hostkey: 
+|   2048 d4:4d:ba:a7:7b:ab:fc:a1:b6:11:ef:fc:c6:28:52:e5 (RSA)
+|   256 d9:01:7a:b1:32:2f:25:2d:ac:ab:25:8a:82:ee:ab:4f (ECDSA)
+|_  256 ab:35:02:1e:b9:6d:ef:66:ce:f0:fe:6b:26:5d:e8:26 (ED25519)
+111/tcp open  rpcbind         2-4 (RPC #100000)
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2,3,4        111/tcp   rpcbind
+|   100000  2,3,4        111/udp   rpcbind
+|   100000  3,4          111/tcp6  rpcbind
+|_  100000  3,4          111/udp6  rpcbind
+902/tcp open  ssl/vmware-auth VMware Authentication Daemon 1.10 (Uses VNC, SOAP)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Mon Nov 29 10:42:39 2021 -- 1 IP address (1 host up) scanned in 17.91 seconds

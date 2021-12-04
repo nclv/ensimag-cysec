@@ -1,1 +1,0 @@
-# Nmap 7.92 scan initiated Mon Nov 29 10:49:04 2021 as: nmap --script http-headers,http-methods -o website_http_script ima-crypto.u-ga.fr

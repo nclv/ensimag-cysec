@@ -1,0 +1,243 @@
+# Nmap 7.92 scan initiated Mon Nov 29 10:35:25 2021 as: nmap --script vuln -o lab_vuln_script 192.168.142.10/24
+Nmap scan report for im2ag-fw-to-im2ag-priv-deploiement.u-ga.fr (192.168.142.1)
+Host is up (0.019s latency).
+Not shown: 999 filtered tcp ports (no-response)
+PORT      STATE  SERVICE
+33899/tcp closed unknown
+MAC Address: D4:04:FF:1A:1F:F0 (Juniper Networks)
+
+Nmap scan report for 192.168.142.2
+Host is up (0.079s latency).
+Not shown: 996 closed tcp ports (reset)
+PORT     STATE SERVICE
+22/tcp   open  ssh
+80/tcp   open  http
+|_http-dombased-xss: Couldn't find any DOM based XSS.
+|_http-vuln-cve2017-1001000: ERROR: Script execution failed (use -d to debug)
+| http-enum: 
+|   /README.txt: Interesting, a readme.
+|   /config/: Potentially interesting folder
+|   /images/: Potentially interesting folder
+|   /include/: Potentially interesting folder
+|   /libraries/: Potentially interesting folder
+|   /scripts/: Potentially interesting folder
+|_  /style/: Potentially interesting folder
+|_http-csrf: Couldn't find any CSRF vulnerabilities.
+|_http-stored-xss: Couldn't find any stored XSS vulnerabilities.
+111/tcp  open  rpcbind
+2049/tcp open  nfs
+MAC Address: 02:35:64:12:54:24 (Unknown)
+
+Nmap scan report for 192.168.142.15
+Host is up (0.075s latency).
+Not shown: 997 closed tcp ports (reset)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+MAC Address: B4:96:91:47:9C:62 (Intel Corporate)
+
+Nmap scan report for 192.168.142.25
+Host is up (0.066s latency).
+Not shown: 998 closed tcp ports (reset)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+902/tcp open  iss-realsecure
+MAC Address: B8:CA:3A:81:62:A7 (Dell)
+
+Nmap scan report for 192.168.142.26
+Host is up (0.00066s latency).
+All 1000 scanned ports on 192.168.142.26 are in ignored states.
+Not shown: 1000 filtered tcp ports (no-response)
+MAC Address: B4:96:91:47:9B:83 (Intel Corporate)
+
+Nmap scan report for 192.168.142.30
+Host is up (0.062s latency).
+Not shown: 998 closed tcp ports (reset)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+902/tcp open  iss-realsecure
+MAC Address: B8:CA:3A:81:64:5C (Dell)
+
+Nmap scan report for 192.168.142.31
+Host is up (0.060s latency).
+Not shown: 998 closed tcp ports (reset)
+PORT     STATE SERVICE
+22/tcp   open  ssh
+3000/tcp open  ppp
+MAC Address: 90:2E:16:68:07:57 (Lcfc(hefei) Electronics Technology)
+
+Nmap scan report for 192.168.142.36
+Host is up (0.066s latency).
+Not shown: 997 closed tcp ports (reset)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+MAC Address: B4:96:91:47:9F:48 (Intel Corporate)
+
+Nmap scan report for 192.168.142.41
+Host is up (0.066s latency).
+Not shown: 997 closed tcp ports (reset)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+MAC Address: B4:96:91:47:9C:3F (Intel Corporate)
+
+Nmap scan report for 192.168.142.71
+Host is up (0.073s latency).
+Not shown: 997 closed tcp ports (reset)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+MAC Address: B4:96:91:47:9A:FE (Intel Corporate)
+
+Nmap scan report for 192.168.142.77
+Host is up (0.0053s latency).
+Not shown: 997 closed tcp ports (reset)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+MAC Address: B4:96:91:47:9C:62 (Intel Corporate)
+
+Nmap scan report for 192.168.142.83
+Host is up (0.073s latency).
+Not shown: 997 closed tcp ports (reset)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+MAC Address: B4:96:91:52:33:E9 (Intel Corporate)
+
+Nmap scan report for 192.168.142.100
+Host is up (0.078s latency).
+Not shown: 997 closed tcp ports (reset)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+MAC Address: B4:96:91:52:36:3C (Intel Corporate)
+
+Nmap scan report for 192.168.142.110
+Host is up (0.068s latency).
+Not shown: 997 closed tcp ports (reset)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+MAC Address: B4:96:91:47:9B:14 (Intel Corporate)
+
+Nmap scan report for 192.168.142.111
+Host is up (0.066s latency).
+Not shown: 997 closed tcp ports (reset)
+PORT     STATE SERVICE
+111/tcp  open  rpcbind
+902/tcp  open  iss-realsecure
+1234/tcp open  hotline
+MAC Address: B4:96:91:47:9B:06 (Intel Corporate)
+
+Nmap scan report for 192.168.142.120
+Host is up (0.068s latency).
+Not shown: 997 closed tcp ports (reset)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+MAC Address: B4:96:91:47:9B:33 (Intel Corporate)
+
+Nmap scan report for 192.168.142.127
+Host is up (0.069s latency).
+Not shown: 997 closed tcp ports (reset)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+MAC Address: B4:96:91:47:9B:EF (Intel Corporate)
+
+Nmap scan report for 192.168.142.155
+Host is up (0.067s latency).
+Not shown: 997 closed tcp ports (reset)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+MAC Address: B4:96:91:52:32:F2 (Intel Corporate)
+
+Nmap scan report for 192.168.142.159
+Host is up (0.067s latency).
+Not shown: 997 closed tcp ports (reset)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+MAC Address: B4:96:91:52:34:49 (Intel Corporate)
+
+Nmap scan report for 192.168.142.166
+Host is up (0.075s latency).
+Not shown: 997 closed tcp ports (reset)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+MAC Address: B4:96:91:47:98:12 (Intel Corporate)
+
+Nmap scan report for 192.168.142.175
+Host is up (0.11s latency).
+Not shown: 528 filtered tcp ports (no-response), 471 closed tcp ports (reset)
+PORT   STATE SERVICE
+80/tcp open  http
+|_http-aspnet-debug: ERROR: Script execution failed (use -d to debug)
+|_http-vuln-cve2014-3704: ERROR: Script execution failed (use -d to debug)
+|_http-csrf: Couldn't find any CSRF vulnerabilities.
+|_http-stored-xss: Couldn't find any stored XSS vulnerabilities.
+|_http-dombased-xss: Couldn't find any DOM based XSS.
+MAC Address: 00:2B:67:02:77:72 (Lcfc(hefei) Electronics Technology)
+
+Nmap scan report for 192.168.142.178
+Host is up (0.00059s latency).
+All 1000 scanned ports on 192.168.142.178 are in ignored states.
+Not shown: 1000 filtered tcp ports (no-response)
+MAC Address: B4:96:91:47:9B:18 (Intel Corporate)
+
+Nmap scan report for 192.168.142.192
+Host is up (0.075s latency).
+Not shown: 997 closed tcp ports (reset)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+MAC Address: B4:96:91:47:9F:78 (Intel Corporate)
+
+Nmap scan report for 192.168.142.194
+Host is up (0.059s latency).
+Not shown: 997 closed tcp ports (reset)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+111/tcp open  rpcbind
+902/tcp open  iss-realsecure
+MAC Address: B4:96:91:47:9F:21 (Intel Corporate)
+
+Nmap scan report for 192.168.142.195
+Host is up (0.056s latency).
+Not shown: 998 closed tcp ports (reset)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+902/tcp open  iss-realsecure
+MAC Address: B8:CA:3A:84:20:96 (Dell)
+
+Nmap scan report for 192.168.142.200
+Host is up (0.00040s latency).
+All 1000 scanned ports on 192.168.142.200 are in ignored states.
+Not shown: 1000 filtered tcp ports (no-response)
+MAC Address: B4:96:91:47:9B:18 (Intel Corporate)
+
+Nmap scan report for parrot (192.168.142.10)
+Host is up (0.055s latency).
+Not shown: 999 closed tcp ports (reset)
+PORT     STATE SERVICE
+8086/tcp open  d-s-n
+
+# Nmap done at Mon Nov 29 10:42:06 2021 -- 256 IP addresses (27 hosts up) scanned in 401.61 seconds

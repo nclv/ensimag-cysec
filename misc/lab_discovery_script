@@ -1,0 +1,1268 @@
+# Nmap 7.92 scan initiated Mon Nov 29 10:27:21 2021 as: nmap --script discovery -o lab_discovery_script 192.168.142.10/24
+Pre-scan script results:
+| targets-asn: 
+|_  targets-asn.asn is a mandatory parameter
+|_hostmap-robtex: *TEMPORARILY DISABLED* due to changes in Robtex's API. See https://www.robtex.com/api/
+|_http-robtex-shared-ns: *TEMPORARILY DISABLED* due to changes in Robtex's API. See https://www.robtex.com/api/
+Nmap scan report for ima-crypto.u-ga.fr (192.168.142.2)
+Host is up (0.047s latency).
+Not shown: 996 closed tcp ports (conn-refused)
+PORT     STATE SERVICE
+22/tcp   open  ssh
+| ssh-hostkey: 
+|   1024 13:13:99:7c:03:5a:d8:58:c1:2e:55:01:d1:d8:b0:c5 (DSA)
+|   2048 7b:00:80:7e:af:59:16:10:d2:37:bb:70:40:dd:01:ad (RSA)
+|   256 0e:f7:f1:17:87:dd:f5:08:47:e3:d3:81:20:71:ed:30 (ECDSA)
+|_  256 aa:4c:8e:2f:9b:3c:e8:4a:d7:67:b9:67:1b:09:c2:ad (ED25519)
+| ssh2-enum-algos: 
+|   kex_algorithms: (6)
+|   server_host_key_algorithms: (4)
+|   encryption_algorithms: (6)
+|   mac_algorithms: (10)
+|_  compression_algorithms: (2)
+|_banner: SSH-2.0-OpenSSH_6.7p1 Debian-5+deb8u8
+80/tcp   open  http
+| http-headers: 
+|   Date: Mon, 29 Nov 2021 09:29:29 GMT
+|   Server: Apache/2.4.10 (Debian)
+|   Set-Cookie: eXtplorer=0icmnes90k5c98iip26mjkv733; path=/
+|   Expires: Mon, 26 Jul 1997 05:00:00 GMT
+|   Cache-Control: no-store, no-cache, must-revalidate
+|   Pragma: no-cache
+|   Set-Cookie: eXtplorer=8nqQ1cRQErICiiuqQzR5blnyPLSL4C3p; path=/
+|   Last-Modified: Mon, 29 Nov 2021 09:29:29 GMT
+|   Cache-Control: post-check=0, pre-check=0
+|   Connection: close
+|   Content-Type: text/html; charset=UTF-8
+|   
+|_  (Request type: HEAD)
+|_http-mobileversion-checker: No mobile version detected.
+|_http-chrono: Request times for /; avg: 165.14ms; min: 153.33ms; max: 200.80ms
+|_http-feed: Couldn't find any feeds.
+| http-traceroute: 
+|   last-modified
+|     Hop #1: Mon, 29 Nov 2021 09:29:00 GMT
+|     Hop #2: Mon, 29 Nov 2021 09:29:28 GMT
+|_    Hop #3: Mon, 29 Nov 2021 09:29:28 GMT
+|_http-referer-checker: Couldn't find any cross-domain scripts.
+|_http-title: Login - eXtplorer
+| http-security-headers: 
+|   Cache_Control: 
+|     Header: Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+|   Pragma: 
+|     Header: Pragma: no-cache
+|   Expires: 
+|_    Header: Expires: Mon, 26 Jul 1997 05:00:00 GMT
+|_http-errors: Couldn't find any error pages.
+|_http-devframework: Couldn't determine the underlying framework or CMS. Try increasing 'httpspider.maxpagecount' value to spider more pages.
+| http-comments-displayer: 
+| Spidering limited to: maxdepth=3; maxpagecount=20; withinhost=ima-crypto.u-ga.fr
+|     
+|     Path: http://ima-crypto.u-ga.fr:80/
+|     Line number: 38
+|     Comment: 
+|_        
+| http-useragent-tester: 
+|   Status for browser useragent: 200
+|   Allowed User Agents: 
+|     Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)
+|     libwww
+|     lwp-trivial
+|     libcurl-agent/1.0
+|     PHP/
+|     Python-urllib/2.5
+|     GT::WWW
+|     Snoopy
+|     MFC_Tear_Sample
+|     HTTP::Lite
+|     PHPCrawl
+|     URI::Fetch
+|     Zend_Http_Client
+|     http client
+|     PECL::HTTP
+|     Wget/1.13.4 (linux-gnu)
+|_    WWW-Mechanize/1.34
+|_http-xssed: ERROR: Script execution failed (use -d to debug)
+| http-vhosts: 
+|_128 names had status 200
+| http-enum: 
+|   /README.txt: Interesting, a readme.
+|   /config/: Potentially interesting folder
+|   /images/: Potentially interesting folder
+|   /include/: Potentially interesting folder
+|   /libraries/: Potentially interesting folder
+|   /scripts/: Potentially interesting folder
+|_  /style/: Potentially interesting folder
+| http-sitemap-generator: 
+|   Directory structure:
+|     /
+|       Other: 1; ico: 1
+|   Longest directory structure:
+|     Depth: 0
+|     Dir: /
+|   Total files found (by extension):
+|_    Other: 1; ico: 1
+|_http-date: Mon, 29 Nov 2021 09:29:29 GMT; -59s from local time.
+111/tcp  open  rpcbind
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2,3,4        111/tcp   rpcbind
+|   100000  2,3,4        111/udp   rpcbind
+|   100000  3,4          111/tcp6  rpcbind
+|   100000  3,4          111/udp6  rpcbind
+|   100003  2,3,4       2049/tcp   nfs
+|   100003  2,3,4       2049/tcp6  nfs
+|   100003  2,3,4       2049/udp   nfs
+|   100003  2,3,4       2049/udp6  nfs
+|   100005  1,2,3      39092/tcp   mountd
+|   100005  1,2,3      53459/tcp6  mountd
+|   100005  1,2,3      56915/udp   mountd
+|   100005  1,2,3      58280/udp6  mountd
+|   100021  1,3,4      43420/udp   nlockmgr
+|   100021  1,3,4      45043/tcp   nlockmgr
+|   100021  1,3,4      48598/tcp6  nlockmgr
+|   100021  1,3,4      58715/udp6  nlockmgr
+|   100024  1          39623/udp6  status
+|   100024  1          41314/udp   status
+|   100024  1          42222/tcp6  status
+|   100024  1          57076/tcp   status
+|   100227  2,3         2049/tcp   nfs_acl
+|   100227  2,3         2049/tcp6  nfs_acl
+|   100227  2,3         2049/udp   nfs_acl
+|_  100227  2,3         2049/udp6  nfs_acl
+| nfs-showmount: 
+|   /srv/VM 192.168.142.0/24
+|   /srv/images 192.168.142.0/24
+|_  /srv/tftp/boot/images 192.168.142.0/24
+2049/tcp open  nfs_acl
+
+Host script results:
+| dns-brute: 
+|   DNS Brute-force hostnames: 
+|     test.u-ga.fr - 152.77.57.45
+|     vpn.u-ga.fr - 152.77.18.26
+|     internet.u-ga.fr - 195.83.24.194
+|     blog.u-ga.fr - 129.88.220.42
+|     ns1.u-ga.fr - 195.83.24.30
+|     intranet.u-ga.fr - 195.83.24.194
+|     ns1.u-ga.fr - 2001:660:5305:653::2
+|     ns2.u-ga.fr - 152.77.1.22
+|     ns2.u-ga.fr - 2001:660:5305:653::6
+|     ns3.u-ga.fr - 152.77.1.134
+|     ns3.u-ga.fr - 2001:660:5305:653::a
+|     ldap.u-ga.fr - 129.88.175.145
+|     ntp.u-ga.fr - 195.83.24.250
+|     dev.u-ga.fr - 129.88.196.6
+|     devtest.u-ga.fr - 152.77.14.182
+|     git.u-ga.fr - 195.83.24.78
+|_    help.u-ga.fr - 195.83.24.218
+|_fcrdns: PASS (ima-crypto.u-ga.fr)
+
+Nmap scan report for 192.168.142.10
+Host is up (0.045s latency).
+Not shown: 989 closed tcp ports (conn-refused)
+PORT      STATE    SERVICE
+1069/tcp  filtered cognex-insight
+1110/tcp  filtered nfsd-status
+1998/tcp  filtered x25-svc-port
+2049/tcp  filtered nfs
+3030/tcp  filtered arepa-cas
+3325/tcp  filtered active-net
+5678/tcp  filtered rrac
+6566/tcp  filtered sane-port
+8086/tcp  open     d-s-n
+9081/tcp  filtered cisco-aqos
+16016/tcp filtered unknown
+
+Host script results:
+|_dns-brute: Can't guess domain of "192.168.142.10"; use dns-brute.domain script argument.
+|_fcrdns: FAIL (127.0.1.1)
+
+Nmap scan report for 192.168.142.15
+Host is up (0.038s latency).
+Not shown: 986 closed tcp ports (conn-refused)
+PORT      STATE    SERVICE
+22/tcp    open     ssh
+|_banner: SSH-2.0-OpenSSH_8.0p1 Debian-6
+| ssh2-enum-algos: 
+|   kex_algorithms: (10)
+|   server_host_key_algorithms: (5)
+|   encryption_algorithms: (6)
+|   mac_algorithms: (10)
+|_  compression_algorithms: (2)
+| ssh-hostkey: 
+|   2048 d4:4d:ba:a7:7b:ab:fc:a1:b6:11:ef:fc:c6:28:52:e5 (RSA)
+|   256 d9:01:7a:b1:32:2f:25:2d:ac:ab:25:8a:82:ee:ab:4f (ECDSA)
+|_  256 ab:35:02:1e:b9:6d:ef:66:ce:f0:fe:6b:26:5d:e8:26 (ED25519)
+111/tcp   open     rpcbind
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2,3,4        111/tcp   rpcbind
+|   100000  2,3,4        111/udp   rpcbind
+|   100000  3,4          111/tcp6  rpcbind
+|_  100000  3,4          111/udp6  rpcbind
+902/tcp   open     iss-realsecure
+|_banner: 220 VMware Authentication Daemon Version 1.10: SSL Required,...
+1069/tcp  filtered cognex-insight
+1110/tcp  filtered nfsd-status
+1998/tcp  filtered x25-svc-port
+2049/tcp  filtered nfs
+3030/tcp  filtered arepa-cas
+3325/tcp  filtered active-net
+5678/tcp  filtered rrac
+6566/tcp  filtered sane-port
+7070/tcp  filtered realserver
+9081/tcp  filtered cisco-aqos
+16016/tcp filtered unknown
+
+Host script results:
+|_dns-brute: Can't guess domain of "192.168.142.15"; use dns-brute.domain script argument.
+|_fcrdns: FAIL (No PTR record)
+
+Nmap scan report for 192.168.142.25
+Host is up (0.044s latency).
+Not shown: 986 closed tcp ports (conn-refused)
+PORT      STATE    SERVICE
+22/tcp    open     ssh
+|_banner: SSH-2.0-OpenSSH_7.8p1 Debian-1
+| ssh2-enum-algos: 
+|   kex_algorithms: (10)
+|   server_host_key_algorithms: (5)
+|   encryption_algorithms: (6)
+|   mac_algorithms: (10)
+|_  compression_algorithms: (2)
+| ssh-hostkey: 
+|   2048 65:fd:14:e4:f6:33:49:b3:9a:65:87:61:aa:2e:ee:56 (RSA)
+|   256 ca:94:2f:fd:45:d7:72:50:39:4f:33:a7:53:0c:24:91 (ECDSA)
+|_  256 97:c9:63:20:a0:01:7f:b7:71:3b:dd:d7:0d:f0:62:cb (ED25519)
+548/tcp   filtered afp
+902/tcp   open     iss-realsecure
+|_banner: 220 VMware Authentication Daemon Version 1.10: SSL Required,...
+1064/tcp  filtered jstel
+1105/tcp  filtered ftranhc
+2191/tcp  filtered tvbus
+2323/tcp  filtered 3d-nfsd
+5801/tcp  filtered vnc-http-1
+6112/tcp  filtered dtspc
+8000/tcp  filtered http-alt
+10629/tcp filtered unknown
+13783/tcp filtered netbackup
+49159/tcp filtered unknown
+50001/tcp filtered unknown
+
+Host script results:
+|_fcrdns: FAIL (No PTR record)
+|_dns-brute: Can't guess domain of "192.168.142.25"; use dns-brute.domain script argument.
+
+Nmap scan report for 192.168.142.30
+Host is up (0.041s latency).
+Not shown: 966 closed tcp ports (conn-refused), 32 filtered tcp ports (no-response)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+| ssh-hostkey: 
+|   2048 65:fd:14:e4:f6:33:49:b3:9a:65:87:61:aa:2e:ee:56 (RSA)
+|   256 ca:94:2f:fd:45:d7:72:50:39:4f:33:a7:53:0c:24:91 (ECDSA)
+|_  256 97:c9:63:20:a0:01:7f:b7:71:3b:dd:d7:0d:f0:62:cb (ED25519)
+| ssh2-enum-algos: 
+|   kex_algorithms: (10)
+|   server_host_key_algorithms: (5)
+|   encryption_algorithms: (6)
+|   mac_algorithms: (10)
+|_  compression_algorithms: (2)
+902/tcp open  iss-realsecure
+|_banner: 220 VMware Authentication Daemon Version 1.10: SSL Required,...
+
+Host script results:
+|_dns-brute: Can't guess domain of "192.168.142.30"; use dns-brute.domain script argument.
+|_fcrdns: FAIL (No PTR record)
+
+Nmap scan report for 192.168.142.31
+Host is up (0.88s latency).
+Not shown: 739 closed tcp ports (conn-refused), 223 filtered tcp ports (no-response), 37 filtered tcp ports (host-unreach)
+PORT   STATE SERVICE
+22/tcp open  ssh
+|_ssh-hostkey: ERROR: Script execution failed (use -d to debug)
+
+Host script results:
+|_fcrdns: FAIL (No PTR record)
+|_dns-brute: Can't guess domain of "192.168.142.31"; use dns-brute.domain script argument.
+
+Nmap scan report for 192.168.142.36
+Host is up (0.037s latency).
+Not shown: 980 closed tcp ports (conn-refused)
+PORT      STATE    SERVICE
+22/tcp    open     ssh
+| ssh2-enum-algos: 
+|   kex_algorithms: (10)
+|   server_host_key_algorithms: (5)
+|   encryption_algorithms: (6)
+|   mac_algorithms: (10)
+|_  compression_algorithms: (2)
+| ssh-hostkey: 
+|   2048 d4:4d:ba:a7:7b:ab:fc:a1:b6:11:ef:fc:c6:28:52:e5 (RSA)
+|   256 d9:01:7a:b1:32:2f:25:2d:ac:ab:25:8a:82:ee:ab:4f (ECDSA)
+|_  256 ab:35:02:1e:b9:6d:ef:66:ce:f0:fe:6b:26:5d:e8:26 (ED25519)
+|_banner: SSH-2.0-OpenSSH_8.0p1 Debian-6
+111/tcp   open     rpcbind
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2,3,4        111/tcp   rpcbind
+|   100000  2,3,4        111/udp   rpcbind
+|   100000  3,4          111/tcp6  rpcbind
+|_  100000  3,4          111/udp6  rpcbind
+902/tcp   open     iss-realsecure
+|_banner: 220 VMware Authentication Daemon Version 1.10: SSL Required,...
+1023/tcp  filtered netvenuechat
+1233/tcp  filtered univ-appserver
+1782/tcp  filtered hp-hcip
+1984/tcp  filtered bigbrother
+2006/tcp  filtered invokator
+2811/tcp  filtered gsiftp
+3546/tcp  filtered unknown
+3905/tcp  filtered mupdate
+4899/tcp  filtered radmin
+5998/tcp  filtered ncd-diag
+6156/tcp  filtered unknown
+7201/tcp  filtered dlip
+8087/tcp  filtered simplifymedia
+10628/tcp filtered unknown
+16012/tcp filtered unknown
+27715/tcp filtered unknown
+32784/tcp filtered unknown
+
+Host script results:
+|_fcrdns: FAIL (No PTR record)
+|_dns-brute: Can't guess domain of "192.168.142.36"; use dns-brute.domain script argument.
+
+Nmap scan report for 192.168.142.41
+Host is up (0.035s latency).
+Not shown: 997 closed tcp ports (conn-refused)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+|_banner: SSH-2.0-OpenSSH_8.0p1 Debian-6
+| ssh-hostkey: 
+|   2048 d4:4d:ba:a7:7b:ab:fc:a1:b6:11:ef:fc:c6:28:52:e5 (RSA)
+|   256 d9:01:7a:b1:32:2f:25:2d:ac:ab:25:8a:82:ee:ab:4f (ECDSA)
+|_  256 ab:35:02:1e:b9:6d:ef:66:ce:f0:fe:6b:26:5d:e8:26 (ED25519)
+| ssh2-enum-algos: 
+|   kex_algorithms: (10)
+|   server_host_key_algorithms: (5)
+|   encryption_algorithms: (6)
+|   mac_algorithms: (10)
+|_  compression_algorithms: (2)
+111/tcp open  rpcbind
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2,3,4        111/tcp   rpcbind
+|   100000  2,3,4        111/udp   rpcbind
+|   100000  3,4          111/tcp6  rpcbind
+|_  100000  3,4          111/udp6  rpcbind
+902/tcp open  iss-realsecure
+|_banner: 220 VMware Authentication Daemon Version 1.10: SSL Required,...
+
+Host script results:
+|_dns-brute: Can't guess domain of "192.168.142.41"; use dns-brute.domain script argument.
+|_fcrdns: FAIL (No PTR record)
+
+Nmap scan report for 192.168.142.71
+Host is up (0.045s latency).
+Not shown: 984 closed tcp ports (conn-refused)
+PORT      STATE    SERVICE
+22/tcp    open     ssh
+| ssh-hostkey: 
+|   2048 d4:4d:ba:a7:7b:ab:fc:a1:b6:11:ef:fc:c6:28:52:e5 (RSA)
+|   256 d9:01:7a:b1:32:2f:25:2d:ac:ab:25:8a:82:ee:ab:4f (ECDSA)
+|_  256 ab:35:02:1e:b9:6d:ef:66:ce:f0:fe:6b:26:5d:e8:26 (ED25519)
+|_banner: SSH-2.0-OpenSSH_8.0p1 Debian-6
+| ssh2-enum-algos: 
+|   kex_algorithms: (10)
+|   server_host_key_algorithms: (5)
+|   encryption_algorithms: (6)
+|   mac_algorithms: (10)
+|_  compression_algorithms: (2)
+111/tcp   open     rpcbind
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2,3,4        111/tcp   rpcbind
+|   100000  2,3,4        111/udp   rpcbind
+|   100000  3,4          111/tcp6  rpcbind
+|_  100000  3,4          111/udp6  rpcbind
+425/tcp   filtered icad-el
+548/tcp   filtered afp
+902/tcp   open     iss-realsecure
+|_banner: 220 VMware Authentication Daemon Version 1.10: SSL Required,...
+1105/tcp  filtered ftranhc
+1721/tcp  filtered caicci
+2605/tcp  filtered bgpd
+3006/tcp  filtered deslogind
+5801/tcp  filtered vnc-http-1
+6112/tcp  filtered dtspc
+8000/tcp  filtered http-alt
+10004/tcp filtered emcrmirccd
+13783/tcp filtered netbackup
+16993/tcp filtered amt-soap-https
+49159/tcp filtered unknown
+
+Host script results:
+|_dns-brute: Can't guess domain of "192.168.142.71"; use dns-brute.domain script argument.
+|_fcrdns: FAIL (No PTR record)
+
+Nmap scan report for 192.168.142.77
+Host is up (0.038s latency).
+Not shown: 984 closed tcp ports (conn-refused)
+PORT      STATE    SERVICE
+22/tcp    open     ssh
+| ssh2-enum-algos: 
+|   kex_algorithms: (10)
+|   server_host_key_algorithms: (5)
+|   encryption_algorithms: (6)
+|   mac_algorithms: (10)
+|_  compression_algorithms: (2)
+| ssh-hostkey: 
+|   2048 d4:4d:ba:a7:7b:ab:fc:a1:b6:11:ef:fc:c6:28:52:e5 (RSA)
+|   256 d9:01:7a:b1:32:2f:25:2d:ac:ab:25:8a:82:ee:ab:4f (ECDSA)
+|_  256 ab:35:02:1e:b9:6d:ef:66:ce:f0:fe:6b:26:5d:e8:26 (ED25519)
+|_banner: SSH-2.0-OpenSSH_8.0p1 Debian-6
+111/tcp   open     rpcbind
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2,3,4        111/tcp   rpcbind
+|   100000  2,3,4        111/udp   rpcbind
+|   100000  3,4          111/tcp6  rpcbind
+|_  100000  3,4          111/udp6  rpcbind
+902/tcp   open     iss-realsecure
+|_banner: 220 VMware Authentication Daemon Version 1.10: SSL Required,...
+1023/tcp  filtered netvenuechat
+1782/tcp  filtered hp-hcip
+1984/tcp  filtered bigbrother
+2006/tcp  filtered invokator
+2811/tcp  filtered gsiftp
+3546/tcp  filtered unknown
+6156/tcp  filtered unknown
+7201/tcp  filtered dlip
+10628/tcp filtered unknown
+16012/tcp filtered unknown
+16016/tcp filtered unknown
+27715/tcp filtered unknown
+32784/tcp filtered unknown
+
+Host script results:
+|_dns-brute: Can't guess domain of "192.168.142.77"; use dns-brute.domain script argument.
+|_fcrdns: FAIL (No PTR record)
+
+Nmap scan report for 192.168.142.83
+Host is up (0.042s latency).
+Not shown: 987 closed tcp ports (conn-refused)
+PORT      STATE    SERVICE
+22/tcp    open     ssh
+|_banner: SSH-2.0-OpenSSH_8.0p1 Debian-6
+| ssh2-enum-algos: 
+|   kex_algorithms: (10)
+|   server_host_key_algorithms: (5)
+|   encryption_algorithms: (6)
+|   mac_algorithms: (10)
+|_  compression_algorithms: (2)
+| ssh-hostkey: 
+|   2048 d4:4d:ba:a7:7b:ab:fc:a1:b6:11:ef:fc:c6:28:52:e5 (RSA)
+|   256 d9:01:7a:b1:32:2f:25:2d:ac:ab:25:8a:82:ee:ab:4f (ECDSA)
+|_  256 ab:35:02:1e:b9:6d:ef:66:ce:f0:fe:6b:26:5d:e8:26 (ED25519)
+111/tcp   open     rpcbind
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2,3,4        111/tcp   rpcbind
+|   100000  2,3,4        111/udp   rpcbind
+|   100000  3,4          111/tcp6  rpcbind
+|_  100000  3,4          111/udp6  rpcbind
+902/tcp   open     iss-realsecure
+|_banner: 220 VMware Authentication Daemon Version 1.10: SSL Required,...
+1023/tcp  filtered netvenuechat
+1069/tcp  filtered cognex-insight
+1782/tcp  filtered hp-hcip
+1984/tcp  filtered bigbrother
+2006/tcp  filtered invokator
+5678/tcp  filtered rrac
+6156/tcp  filtered unknown
+9081/tcp  filtered cisco-aqos
+10628/tcp filtered unknown
+16016/tcp filtered unknown
+
+Host script results:
+|_dns-brute: Can't guess domain of "192.168.142.83"; use dns-brute.domain script argument.
+|_fcrdns: FAIL (No PTR record)
+
+Nmap scan report for 192.168.142.100
+Host is up (0.029s latency).
+Not shown: 986 closed tcp ports (conn-refused)
+PORT      STATE    SERVICE
+22/tcp    open     ssh
+| ssh2-enum-algos: 
+|   kex_algorithms: (9)
+|   server_host_key_algorithms: (5)
+|   encryption_algorithms: (6)
+|   mac_algorithms: (10)
+|_  compression_algorithms: (2)
+| ssh-hostkey: 
+|   2048 d4:4d:ba:a7:7b:ab:fc:a1:b6:11:ef:fc:c6:28:52:e5 (RSA)
+|   256 d9:01:7a:b1:32:2f:25:2d:ac:ab:25:8a:82:ee:ab:4f (ECDSA)
+|_  256 ab:35:02:1e:b9:6d:ef:66:ce:f0:fe:6b:26:5d:e8:26 (ED25519)
+|_banner: SSH-2.0-OpenSSH_8.7p1 Debian-2
+82/tcp    filtered xfer
+111/tcp   open     rpcbind
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2,3,4        111/tcp   rpcbind
+|   100000  2,3,4        111/udp   rpcbind
+|   100000  3,4          111/tcp6  rpcbind
+|_  100000  3,4          111/udp6  rpcbind
+366/tcp   filtered odmr
+544/tcp   filtered kshell
+902/tcp   open     iss-realsecure
+|_banner: 220 VMware Authentication Daemon Version 1.10: SSL Required,...
+1093/tcp  filtered proofd
+1165/tcp  filtered qsm-gui
+2601/tcp  filtered zebra
+2605/tcp  filtered bgpd
+3006/tcp  filtered deslogind
+8093/tcp  filtered unknown
+16993/tcp filtered amt-soap-https
+49160/tcp filtered unknown
+
+Host script results:
+|_dns-brute: Can't guess domain of "192.168.142.100"; use dns-brute.domain script argument.
+|_fcrdns: FAIL (No PTR record)
+
+Nmap scan report for 192.168.142.110
+Host is up (0.036s latency).
+Not shown: 983 closed tcp ports (conn-refused)
+PORT      STATE    SERVICE
+22/tcp    open     ssh
+|_banner: SSH-2.0-OpenSSH_8.0p1 Debian-6
+| ssh-hostkey: 
+|   2048 d4:4d:ba:a7:7b:ab:fc:a1:b6:11:ef:fc:c6:28:52:e5 (RSA)
+|   256 d9:01:7a:b1:32:2f:25:2d:ac:ab:25:8a:82:ee:ab:4f (ECDSA)
+|_  256 ab:35:02:1e:b9:6d:ef:66:ce:f0:fe:6b:26:5d:e8:26 (ED25519)
+| ssh2-enum-algos: 
+|   kex_algorithms: (10)
+|   server_host_key_algorithms: (5)
+|   encryption_algorithms: (6)
+|   mac_algorithms: (10)
+|_  compression_algorithms: (2)
+24/tcp    filtered priv-mail
+111/tcp   open     rpcbind
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2,3,4        111/tcp   rpcbind
+|   100000  2,3,4        111/udp   rpcbind
+|   100000  3,4          111/tcp6  rpcbind
+|_  100000  3,4          111/udp6  rpcbind
+407/tcp   filtered timbuktu
+631/tcp   filtered ipp
+777/tcp   filtered multiling-http
+902/tcp   open     iss-realsecure
+|_banner: 220 VMware Authentication Daemon Version 1.10: SSL Required,...
+992/tcp   filtered telnets
+1300/tcp  filtered h323hostcallsc
+2161/tcp  filtered apc-agent
+3211/tcp  filtered avsecuremgmt
+3986/tcp  filtered mapper-ws_ethd
+5907/tcp  filtered unknown
+9666/tcp  filtered zoomcp
+18040/tcp filtered unknown
+34573/tcp filtered unknown
+49156/tcp filtered unknown
+
+Host script results:
+|_fcrdns: FAIL (No PTR record)
+|_dns-brute: Can't guess domain of "192.168.142.110"; use dns-brute.domain script argument.
+
+Nmap scan report for 192.168.142.111
+Host is up (0.039s latency).
+Not shown: 987 closed tcp ports (conn-refused)
+PORT      STATE    SERVICE
+111/tcp   open     rpcbind
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2,3,4        111/tcp   rpcbind
+|   100000  2,3,4        111/udp   rpcbind
+|   100000  3,4          111/tcp6  rpcbind
+|_  100000  3,4          111/udp6  rpcbind
+700/tcp   filtered epp
+902/tcp   open     iss-realsecure
+|_banner: 220 VMware Authentication Daemon Version 1.10: SSL Required,...
+1233/tcp  filtered univ-appserver
+1234/tcp  open     hotline
+2717/tcp  filtered pn-requester
+2811/tcp  filtered gsiftp
+3546/tcp  filtered unknown
+3905/tcp  filtered mupdate
+4899/tcp  filtered radmin
+5998/tcp  filtered ncd-diag
+8087/tcp  filtered simplifymedia
+32784/tcp filtered unknown
+
+Host script results:
+|_fcrdns: FAIL (No PTR record)
+|_dns-brute: Can't guess domain of "192.168.142.111"; use dns-brute.domain script argument.
+
+Nmap scan report for 192.168.142.120
+Host is up (0.034s latency).
+Not shown: 988 closed tcp ports (conn-refused)
+PORT      STATE    SERVICE
+22/tcp    open     ssh
+| ssh2-enum-algos: 
+|   kex_algorithms: (10)
+|   server_host_key_algorithms: (5)
+|   encryption_algorithms: (6)
+|   mac_algorithms: (10)
+|_  compression_algorithms: (2)
+| ssh-hostkey: 
+|   2048 d4:4d:ba:a7:7b:ab:fc:a1:b6:11:ef:fc:c6:28:52:e5 (RSA)
+|   256 d9:01:7a:b1:32:2f:25:2d:ac:ab:25:8a:82:ee:ab:4f (ECDSA)
+|_  256 ab:35:02:1e:b9:6d:ef:66:ce:f0:fe:6b:26:5d:e8:26 (ED25519)
+|_banner: SSH-2.0-OpenSSH_8.0p1 Debian-6
+111/tcp   open     rpcbind
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2,3,4        111/tcp   rpcbind
+|   100000  2,3,4        111/udp   rpcbind
+|   100000  3,4          111/tcp6  rpcbind
+|_  100000  3,4          111/udp6  rpcbind
+902/tcp   open     iss-realsecure
+|_banner: 220 VMware Authentication Daemon Version 1.10: SSL Required,...
+1026/tcp  filtered LSA-or-nterm
+1078/tcp  filtered avocent-proxy
+2366/tcp  filtered qip-login
+2492/tcp  filtered groove
+6003/tcp  filtered X11:3
+7777/tcp  filtered cbt
+8333/tcp  filtered bitcoin
+9111/tcp  filtered DragonIDSConsole
+22939/tcp filtered unknown
+
+Host script results:
+|_fcrdns: FAIL (No PTR record)
+|_dns-brute: Can't guess domain of "192.168.142.120"; use dns-brute.domain script argument.
+
+Nmap scan report for 192.168.142.127
+Host is up (0.036s latency).
+Not shown: 989 closed tcp ports (conn-refused)
+PORT      STATE    SERVICE
+22/tcp    open     ssh
+| ssh2-enum-algos: 
+|   kex_algorithms: (10)
+|   server_host_key_algorithms: (5)
+|   encryption_algorithms: (6)
+|   mac_algorithms: (10)
+|_  compression_algorithms: (2)
+|_banner: SSH-2.0-OpenSSH_8.0p1 Debian-6
+| ssh-hostkey: 
+|   2048 d4:4d:ba:a7:7b:ab:fc:a1:b6:11:ef:fc:c6:28:52:e5 (RSA)
+|   256 d9:01:7a:b1:32:2f:25:2d:ac:ab:25:8a:82:ee:ab:4f (ECDSA)
+|_  256 ab:35:02:1e:b9:6d:ef:66:ce:f0:fe:6b:26:5d:e8:26 (ED25519)
+111/tcp   open     rpcbind
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2,3,4        111/tcp   rpcbind
+|   100000  2,3,4        111/udp   rpcbind
+|   100000  3,4          111/tcp6  rpcbind
+|_  100000  3,4          111/udp6  rpcbind
+902/tcp   open     iss-realsecure
+|_banner: 220 VMware Authentication Daemon Version 1.10: SSL Required,...
+1121/tcp  filtered rmpp
+6669/tcp  filtered irc
+7999/tcp  filtered irdmi2
+8100/tcp  filtered xprint-server
+8800/tcp  filtered sunwebadmin
+11967/tcp filtered sysinfo-sp
+12345/tcp filtered netbus
+44176/tcp filtered unknown
+
+Host script results:
+|_fcrdns: FAIL (No PTR record)
+|_dns-brute: Can't guess domain of "192.168.142.127"; use dns-brute.domain script argument.
+
+Nmap scan report for 192.168.142.155
+Host is up (0.045s latency).
+Not shown: 987 closed tcp ports (conn-refused)
+PORT      STATE    SERVICE
+22/tcp    open     ssh
+| ssh2-enum-algos: 
+|   kex_algorithms: (10)
+|   server_host_key_algorithms: (5)
+|   encryption_algorithms: (6)
+|   mac_algorithms: (10)
+|_  compression_algorithms: (2)
+|_banner: SSH-2.0-OpenSSH_8.0p1 Debian-6
+| ssh-hostkey: 
+|   2048 d4:4d:ba:a7:7b:ab:fc:a1:b6:11:ef:fc:c6:28:52:e5 (RSA)
+|   256 d9:01:7a:b1:32:2f:25:2d:ac:ab:25:8a:82:ee:ab:4f (ECDSA)
+|_  256 ab:35:02:1e:b9:6d:ef:66:ce:f0:fe:6b:26:5d:e8:26 (ED25519)
+111/tcp   open     rpcbind
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2,3,4        111/tcp   rpcbind
+|   100000  2,3,4        111/udp   rpcbind
+|   100000  3,4          111/tcp6  rpcbind
+|_  100000  3,4          111/udp6  rpcbind
+548/tcp   filtered afp
+902/tcp   open     iss-realsecure
+|_banner: 220 VMware Authentication Daemon Version 1.10: SSL Required,...
+1064/tcp  filtered jstel
+1105/tcp  filtered ftranhc
+2323/tcp  filtered 3d-nfsd
+5801/tcp  filtered vnc-http-1
+6112/tcp  filtered dtspc
+8000/tcp  filtered http-alt
+10004/tcp filtered emcrmirccd
+13783/tcp filtered netbackup
+49159/tcp filtered unknown
+
+Host script results:
+|_fcrdns: FAIL (No PTR record)
+|_dns-brute: Can't guess domain of "192.168.142.155"; use dns-brute.domain script argument.
+
+Nmap scan report for 192.168.142.159
+Host is up (0.034s latency).
+Not shown: 987 closed tcp ports (conn-refused)
+PORT      STATE    SERVICE
+22/tcp    open     ssh
+| ssh-hostkey: 
+|   2048 d4:4d:ba:a7:7b:ab:fc:a1:b6:11:ef:fc:c6:28:52:e5 (RSA)
+|   256 d9:01:7a:b1:32:2f:25:2d:ac:ab:25:8a:82:ee:ab:4f (ECDSA)
+|_  256 ab:35:02:1e:b9:6d:ef:66:ce:f0:fe:6b:26:5d:e8:26 (ED25519)
+|_banner: SSH-2.0-OpenSSH_8.0p1 Debian-6
+| ssh2-enum-algos: 
+|   kex_algorithms: (10)
+|   server_host_key_algorithms: (5)
+|   encryption_algorithms: (6)
+|   mac_algorithms: (10)
+|_  compression_algorithms: (2)
+32/tcp    filtered unknown
+111/tcp   open     rpcbind
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2,3,4        111/tcp   rpcbind
+|   100000  2,3,4        111/udp   rpcbind
+|   100000  3,4          111/tcp6  rpcbind
+|_  100000  3,4          111/udp6  rpcbind
+873/tcp   filtered rsync
+902/tcp   open     iss-realsecure
+|_banner: 220 VMware Authentication Daemon Version 1.10: SSL Required,...
+1126/tcp  filtered hpvmmdata
+1234/tcp  filtered hotline
+1594/tcp  filtered sixtrak
+2003/tcp  filtered finger
+4005/tcp  filtered pxc-pin
+5050/tcp  filtered mmcc
+8011/tcp  filtered unknown
+35500/tcp filtered unknown
+
+Host script results:
+|_fcrdns: FAIL (No PTR record)
+|_dns-brute: Can't guess domain of "192.168.142.159"; use dns-brute.domain script argument.
+
+Nmap scan report for 192.168.142.166
+Host is up (0.035s latency).
+Not shown: 988 closed tcp ports (conn-refused)
+PORT      STATE    SERVICE
+22/tcp    open     ssh
+| ssh-hostkey: 
+|   2048 d4:4d:ba:a7:7b:ab:fc:a1:b6:11:ef:fc:c6:28:52:e5 (RSA)
+|   256 d9:01:7a:b1:32:2f:25:2d:ac:ab:25:8a:82:ee:ab:4f (ECDSA)
+|_  256 ab:35:02:1e:b9:6d:ef:66:ce:f0:fe:6b:26:5d:e8:26 (ED25519)
+|_banner: SSH-2.0-OpenSSH_8.7p1 Debian-2
+| ssh2-enum-algos: 
+|   kex_algorithms: (9)
+|   server_host_key_algorithms: (5)
+|   encryption_algorithms: (6)
+|   mac_algorithms: (10)
+|_  compression_algorithms: (2)
+111/tcp   open     rpcbind
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2,3,4        111/tcp   rpcbind
+|   100000  2,3,4        111/udp   rpcbind
+|   100000  3,4          111/tcp6  rpcbind
+|_  100000  3,4          111/udp6  rpcbind
+902/tcp   open     iss-realsecure
+|_banner: 220 VMware Authentication Daemon Version 1.10: SSL Required,...
+1077/tcp  filtered imgames
+1121/tcp  filtered rmpp
+2002/tcp  filtered globe
+2033/tcp  filtered glogger
+7999/tcp  filtered irdmi2
+8200/tcp  filtered trivnet1
+10626/tcp filtered unknown
+12345/tcp filtered netbus
+44176/tcp filtered unknown
+
+Host script results:
+|_dns-brute: Can't guess domain of "192.168.142.166"; use dns-brute.domain script argument.
+|_fcrdns: FAIL (No PTR record)
+
+Nmap scan report for 192.168.142.175
+Host is up (0.042s latency).
+Not shown: 986 closed tcp ports (conn-refused)
+Bug in http-security-headers: no string output.
+PORT      STATE    SERVICE
+80/tcp    open     http
+|_http-title: venn.js Test
+| http-referer-checker: 
+| Spidering limited to: maxpagecount=30
+|   https://d3js.org:443/d3.v4.min.js
+|_  https://vega.github.io:443/vega/vega.min.js
+|_http-xssed: ERROR: Script execution failed (use -d to debug)
+| http-headers: 
+|   Date: Mon, 29 Nov 2021 09:29:14 GMT
+|   Server: Apache/2.4.41 (Ubuntu)
+|   Last-Modified: Tue, 25 May 2021 11:10:09 GMT
+|   ETag: "7cf-5c32591b45eaf"
+|   Accept-Ranges: bytes
+|   Content-Length: 1999
+|   Vary: Accept-Encoding
+|   Connection: close
+|   Content-Type: text/html
+|   
+|_  (Request type: HEAD)
+|_http-mobileversion-checker: No mobile version detected.
+| http-enum: 
+|   /css/: Potentially interesting directory w/ listing on 'apache/2.4.41 (ubuntu)'
+|_  /data/: Potentially interesting folder
+| http-comments-displayer: 
+| Spidering limited to: maxdepth=3; maxpagecount=20; withinhost=192.168.142.175
+|     
+|     Path: http://192.168.142.175:80/simple-layout/
+|     Line number: 17
+|     Comment: 
+|         <!-- <script>
+|             // define sets and set set intersections
+|             var sets = [ {sets: ['A'], size: 12},
+|                          {sets: ['B'], size: 12},
+|                          {sets: ['A','B'], size: 2}];
+|         
+|             var chart = venn.VennDiagram();
+|             d3.select("#venn").datum(sets).call(chart);
+|         
+|             </script> -->
+|     
+|     Path: http://192.168.142.175:80/bar_top10_permissions_num_elements/
+|     Line number: 6
+|     Comment: 
+|         <!-- <link rel="stylesheet" href="/css/styles.css"> -->
+|     
+|     Path: http://192.168.142.175:80/multiple_datasets_send_sms_read_phone_state/
+|     Line number: 10
+|     Comment: 
+|         <!-- <script src="https://cdn.jsdelivr.net/npm/vega@5.17.0"></script>
+|             <script src="https://cdn.jsdelivr.net/npm/vega-lite@4.17.0"></script>
+|             <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.12.2"></script> -->
+|     
+|     Path: http://192.168.142.175:80/init/
+|     Line number: 39
+|     Comment: 
+|         <!--<script type="text/javascript">
+|               var yourVlSpec = {
+|                 $schema: 'https://vega.github.io/schema/vega-lite/v4.json',
+|                 description: 'A simple bar chart with embedded data.',
+|                 data: {
+|                   values: [
+|                     {a: 'A', b: 28},
+|                     {a: 'B', b: 55},
+|                     {a: 'C', b: 43},
+|                     {a: 'D', b: 91},
+|                     {a: 'E', b: 81},
+|                     {a: 'F', b: 53},
+|                     {a: 'G', b: 19},
+|                     {a: 'H', b: 87},
+|                     {a: 'I', b: 52}
+|                   ]
+|                 },
+|                 mark: 'bar',
+|                 encoding: {
+|                   x: {field: 'a', type: 'ordinal'},
+|                   y: {field: 'b', type: 'quantitative'}
+|                 }
+|               };
+|               vegaEmbed('#vis', yourVlSpec);
+|             </script>-->
+|     
+|     Path: http://192.168.142.175:80/bar_top10_permissions_num_elements/
+|     Line number: 22
+|     Comment: 
+|         <!-- Container for the visualization -->
+|     
+|     Path: http://192.168.142.175:80/
+|     Line number: 7
+|     Comment: 
+|         <!--<script src="https://vega.github.io/vega/vega.min.js"></script>-->
+|     
+|     Path: http://192.168.142.175:80/
+|     Line number: 13
+|     Comment: 
+|         <!--<p>Hello<p>-->
+|     
+|     Path: http://192.168.142.175:80/changing-style/
+|     Line number: 19
+|     Comment: 
+|         <!-- <div id="venn"></div> -->
+|     
+|     Path: http://192.168.142.175:80/changing-style/
+|     Line number: 24
+|     Comment: 
+|         <!-- <script>
+|                         var chart = venn.VennDiagram()
+|                                          .width(500)
+|                                          .height(500);
+|         
+|                         d3.select("#inverted").datum(sets).call(chart)
+|         
+|                         d3.selectAll("#inverted .venn-circle path")
+|                             .style("fill-opacity", .8);
+|         
+|                         d3.selectAll("#inverted text").style("fill", "white");
+|                     </script> -->
+|     
+|     Path: http://192.168.142.175:80/changing-style/
+|     Line number: 18
+|     Comment: 
+|         <!-- <h1>Simple layout</h1> -->
+|     
+|     Path: http://192.168.142.175:80/bar_top10_permissions_num_elements/
+|     Line number: 28
+|     Comment: 
+|          // console.log("helloooooo");
+|     
+|     Path: http://192.168.142.175:80/init/
+|     Line number: 16
+|     Comment: 
+|         <!-- <button type="button">INTERNET</button> -->
+|     
+|     Path: http://192.168.142.175:80/
+|     Line number: 31
+|     Comment: 
+|         <!-- <hr>
+|         
+|           <a href="/test_get_json">(Test) Get JSON from url</a>
+|           <p></p>
+|           <a href="/test-vega-view-api">(Test) Vega View API</a>
+|           <p>
+|           <a href="/embed">Embedding Vega Lite</a>
+|           <p>
+|           <a href="/embed_local">Embedding Vega Lite (local scripts)</a>
+|           <p>
+|           <a href="/vega-lite-bar-chart">Bar chart (tutorial, getting started)</a>
+|           <p>
+|           <a href="/point_href">2D hyperlink</a>
+|           <p>
+|           <a href="/streaming-data">Streaming data example</a>
+|           <p>
+|           <a href="/plot">Plot of many many points (test)</a>
+|           <p>
+|           <a href="/plot_show_info">Plot with information about points</a>
+|           <p> -->
+|     
+|     Path: http://192.168.142.175:80/simple-layout/
+|     Line number: 18
+|     Comment: 
+|          // define sets and set set intersections
+|     
+|     Path: http://192.168.142.175:80/bar_top10_permissions_num_elements/
+|     Line number: 29
+|     Comment: 
+|          // draw_bars_url('/data/test_bar_data.json')
+|     
+|     Path: http://192.168.142.175:80/bar_top10_permissions_num_elements/
+|     Line number: 24
+|     Comment: 
+|         <!-- <script src="/script_embed.js"></script> -->
+|     
+|     Path: http://192.168.142.175:80/bar_top10_permissions_num_elements/
+|     Line number: 12
+|     Comment: 
+|         /* Add space between Vega-Embed links  */
+|     
+|     Path: http://192.168.142.175:80/simple-layout/
+|     Line number: 27
+|     Comment: 
+|_        <!-- <div id="vis"></div> -->
+|_http-feed: Couldn't find any feeds.
+| http-errors: 
+| Spidering limited to: maxpagecount=40; withinhost=192.168.142.175
+|   Found the following error pages: 
+|   
+|   Error Code: 404
+|   	http://192.168.142.175:80/plot
+|   
+|   Error Code: 404
+|   	http://192.168.142.175:80/vega-lite-bar-chart
+|   
+|   Error Code: 404
+|   	http://192.168.142.175:80/point_href
+|   
+|   Error Code: 404
+|   	http://192.168.142.175:80/embed
+|   
+|   Error Code: 404
+|   	http://192.168.142.175:80/plot_show_info
+|   
+|   Error Code: 404
+|   	http://192.168.142.175:80/embed_local
+|   
+|   Error Code: 404
+|   	http://192.168.142.175:80/test-vega-view-api
+|   
+|   Error Code: 404
+|_  	http://192.168.142.175:80/script_embed.js
+|_http-date: Mon, 29 Nov 2021 09:29:15 GMT; -51s from local time.
+| http-sitemap-generator: 
+|   Directory structure:
+|     /
+|       Other: 1; png: 1
+|     /bar_top10_permissions_num_elements/
+|       Other: 1
+|     /changing-style/
+|       Other: 1
+|     /intersection_tooltip/
+|       Other: 1
+|     /multiple_datasets_send_sms_read_phone_state/
+|       Other: 1
+|     /multiple_datasets_send_sms_read_phone_state2/
+|       Other: 1
+|     /multiple_datasets_send_sms_read_phone_state_read_contacts/
+|       Other: 1
+|     /simple-layout/
+|       Other: 1
+|     /small_multiple_datasets_send_sms_read_phone_state/
+|       Other: 1
+|     /small_multiple_datasets_send_sms_read_phone_state2/
+|       Other: 1
+|     /test_get_json/
+|       Other: 1
+|     /test_multiple_datasets/
+|       Other: 1
+|   Longest directory structure:
+|     Depth: 1
+|     Dir: /small_multiple_datasets_send_sms_read_phone_state2/
+|   Total files found (by extension):
+|_    Other: 12; png: 1
+| http-useragent-tester: 
+|   Status for browser useragent: 200
+|   Allowed User Agents: 
+|     Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)
+|     libwww
+|     lwp-trivial
+|     libcurl-agent/1.0
+|     PHP/
+|     Python-urllib/2.5
+|     GT::WWW
+|     Snoopy
+|     MFC_Tear_Sample
+|     HTTP::Lite
+|     PHPCrawl
+|     URI::Fetch
+|     Zend_Http_Client
+|     http client
+|     PECL::HTTP
+|     Wget/1.13.4 (linux-gnu)
+|_    WWW-Mechanize/1.34
+| http-vhosts: 
+|_128 names had status 200
+|_http-devframework: Couldn't determine the underlying framework or CMS. Try increasing 'httpspider.maxpagecount' value to spider more pages.
+|_http-chrono: Request times for /; avg: 183.22ms; min: 156.64ms; max: 246.90ms
+| http-grep: 
+|   (1) http://192.168.142.175:80/plot: 
+|     (1) ip: 
+|       + 192.168.142.175
+|   (3) http://192.168.142.175:80/multiple_datasets_send_sms_read_phone_state2/: 
+|     (3) email: 
+|       + vega@5.17
+|       + vega-lite@4.17
+|_      + vega-embed@6.12
+700/tcp   filtered epp
+1233/tcp  filtered univ-appserver
+2191/tcp  filtered tvbus
+2717/tcp  filtered pn-requester
+2811/tcp  filtered gsiftp
+3546/tcp  filtered unknown
+3905/tcp  filtered mupdate
+4899/tcp  filtered radmin
+5998/tcp  filtered ncd-diag
+8082/tcp  filtered blackice-alerts
+8087/tcp  filtered simplifymedia
+10629/tcp filtered unknown
+50001/tcp filtered unknown
+
+Host script results:
+|_fcrdns: FAIL (No PTR record)
+|_dns-brute: Can't guess domain of "192.168.142.175"; use dns-brute.domain script argument.
+
+Nmap scan report for 192.168.142.192
+Host is up (0.044s latency).
+Not shown: 987 closed tcp ports (conn-refused)
+PORT      STATE    SERVICE
+22/tcp    open     ssh
+| ssh2-enum-algos: 
+|   kex_algorithms: (10)
+|   server_host_key_algorithms: (5)
+|   encryption_algorithms: (6)
+|   mac_algorithms: (10)
+|_  compression_algorithms: (2)
+|_banner: SSH-2.0-OpenSSH_8.0p1 Debian-6
+| ssh-hostkey: 
+|   2048 d4:4d:ba:a7:7b:ab:fc:a1:b6:11:ef:fc:c6:28:52:e5 (RSA)
+|   256 d9:01:7a:b1:32:2f:25:2d:ac:ab:25:8a:82:ee:ab:4f (ECDSA)
+|_  256 ab:35:02:1e:b9:6d:ef:66:ce:f0:fe:6b:26:5d:e8:26 (ED25519)
+111/tcp   open     rpcbind
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2,3,4        111/tcp   rpcbind
+|   100000  2,3,4        111/udp   rpcbind
+|   100000  3,4          111/tcp6  rpcbind
+|_  100000  3,4          111/udp6  rpcbind
+902/tcp   open     iss-realsecure
+|_banner: 220 VMware Authentication Daemon Version 1.10: SSL Required,...
+1023/tcp  filtered netvenuechat
+1782/tcp  filtered hp-hcip
+1984/tcp  filtered bigbrother
+2006/tcp  filtered invokator
+5678/tcp  filtered rrac
+6156/tcp  filtered unknown
+10628/tcp filtered unknown
+16012/tcp filtered unknown
+16016/tcp filtered unknown
+27715/tcp filtered unknown
+
+Host script results:
+|_fcrdns: FAIL (No PTR record)
+|_dns-brute: Can't guess domain of "192.168.142.192"; use dns-brute.domain script argument.
+
+Nmap scan report for 192.168.142.194
+Host is up (0.039s latency).
+Not shown: 983 closed tcp ports (conn-refused)
+PORT      STATE    SERVICE
+22/tcp    open     ssh
+| ssh2-enum-algos: 
+|   kex_algorithms: (10)
+|   server_host_key_algorithms: (5)
+|   encryption_algorithms: (6)
+|   mac_algorithms: (10)
+|_  compression_algorithms: (2)
+| ssh-hostkey: 
+|   2048 d4:4d:ba:a7:7b:ab:fc:a1:b6:11:ef:fc:c6:28:52:e5 (RSA)
+|   256 d9:01:7a:b1:32:2f:25:2d:ac:ab:25:8a:82:ee:ab:4f (ECDSA)
+|_  256 ab:35:02:1e:b9:6d:ef:66:ce:f0:fe:6b:26:5d:e8:26 (ED25519)
+|_banner: SSH-2.0-OpenSSH_8.0p1 Debian-6
+24/tcp    filtered priv-mail
+111/tcp   open     rpcbind
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2,3,4        111/tcp   rpcbind
+|   100000  2,3,4        111/udp   rpcbind
+|   100000  3,4          111/tcp6  rpcbind
+|_  100000  3,4          111/udp6  rpcbind
+407/tcp   filtered timbuktu
+631/tcp   filtered ipp
+777/tcp   filtered multiling-http
+902/tcp   open     iss-realsecure
+|_banner: 220 VMware Authentication Daemon Version 1.10: SSL Required,...
+992/tcp   filtered telnets
+1300/tcp  filtered h323hostcallsc
+2161/tcp  filtered apc-agent
+3211/tcp  filtered avsecuremgmt
+3986/tcp  filtered mapper-ws_ethd
+5907/tcp  filtered unknown
+9666/tcp  filtered zoomcp
+18040/tcp filtered unknown
+34573/tcp filtered unknown
+49156/tcp filtered unknown
+
+Host script results:
+|_fcrdns: FAIL (No PTR record)
+|_dns-brute: Can't guess domain of "192.168.142.194"; use dns-brute.domain script argument.
+
+Nmap scan report for 192.168.142.195
+Host is up (0.041s latency).
+Not shown: 998 closed tcp ports (conn-refused)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+| ssh2-enum-algos: 
+|   kex_algorithms: (10)
+|   server_host_key_algorithms: (5)
+|   encryption_algorithms: (6)
+|   mac_algorithms: (10)
+|_  compression_algorithms: (2)
+|_banner: SSH-2.0-OpenSSH_7.8p1 Debian-1
+| ssh-hostkey: 
+|   2048 65:fd:14:e4:f6:33:49:b3:9a:65:87:61:aa:2e:ee:56 (RSA)
+|   256 ca:94:2f:fd:45:d7:72:50:39:4f:33:a7:53:0c:24:91 (ECDSA)
+|_  256 97:c9:63:20:a0:01:7f:b7:71:3b:dd:d7:0d:f0:62:cb (ED25519)
+902/tcp open  iss-realsecure
+|_banner: 220 VMware Authentication Daemon Version 1.10: SSL Required,...
+
+Host script results:
+|_fcrdns: FAIL (No PTR record)
+|_dns-brute: Can't guess domain of "192.168.142.195"; use dns-brute.domain script argument.
+
+Post-scan script results:
+| ssh-hostkey: Possible duplicate hosts
+| Key 2048 d4:4d:ba:a7:7b:ab:fc:a1:b6:11:ef:fc:c6:28:52:e5 (RSA) used by:
+|   192.168.142.15
+|   192.168.142.36
+|   192.168.142.41
+|   192.168.142.71
+|   192.168.142.77
+|   192.168.142.83
+|   192.168.142.100
+|   192.168.142.110
+|   192.168.142.120
+|   192.168.142.127
+|   192.168.142.155
+|   192.168.142.159
+|   192.168.142.166
+|   192.168.142.192
+|   192.168.142.194
+| Key 2048 65:fd:14:e4:f6:33:49:b3:9a:65:87:61:aa:2e:ee:56 (RSA) used by:
+|   192.168.142.25
+|   192.168.142.30
+|   192.168.142.195
+| Key 256 ca:94:2f:fd:45:d7:72:50:39:4f:33:a7:53:0c:24:91 (ECDSA) used by:
+|   192.168.142.25
+|   192.168.142.30
+|   192.168.142.195
+| Key 256 ab:35:02:1e:b9:6d:ef:66:ce:f0:fe:6b:26:5d:e8:26 (ED25519) used by:
+|   192.168.142.15
+|   192.168.142.36
+|   192.168.142.41
+|   192.168.142.71
+|   192.168.142.77
+|   192.168.142.83
+|   192.168.142.100
+|   192.168.142.110
+|   192.168.142.120
+|   192.168.142.127
+|   192.168.142.155
+|   192.168.142.159
+|   192.168.142.166
+|   192.168.142.192
+|   192.168.142.194
+| Key 256 d9:01:7a:b1:32:2f:25:2d:ac:ab:25:8a:82:ee:ab:4f (ECDSA) used by:
+|   192.168.142.15
+|   192.168.142.36
+|   192.168.142.41
+|   192.168.142.71
+|   192.168.142.77
+|   192.168.142.83
+|   192.168.142.100
+|   192.168.142.110
+|   192.168.142.120
+|   192.168.142.127
+|   192.168.142.155
+|   192.168.142.159
+|   192.168.142.166
+|   192.168.142.192
+|   192.168.142.194
+| Key 256 97:c9:63:20:a0:01:7f:b7:71:3b:dd:d7:0d:f0:62:cb (ED25519) used by:
+|   192.168.142.25
+|   192.168.142.30
+|_  192.168.142.195
+# Nmap done at Mon Nov 29 10:32:09 2021 -- 256 IP addresses (23 hosts up) scanned in 288.17 seconds
