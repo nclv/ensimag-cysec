@@ -1,0 +1,27 @@
+theory ind1
+begin
+
+/* in order to prove the lemma Origin, you have to use induction */ 
+
+functions: z/0, succ/1
+
+rule Start:
+[  ]  --[ Start() ]-> [ Nat(z) ]
+
+rule Out_pk:
+[ Nat(n) ] --[ Bigger() ]-> [ Nat(succ(n)) ]
+
+
+
+
+// Properties
+// any trace containing a Bigger() event must contain also a Start() event
+// enforce the assertion of lemma Origin, to state that any Bigger() event must be precededby a Start() event.
+lemma Origin:
+"
+  All #i. Bigger() @ i ==> (Ex #j. Start() @ j & j < i)
+"
+
+
+
+end 

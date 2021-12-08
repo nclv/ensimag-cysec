@@ -1,0 +1,52 @@
+theory simple7
+begin
+
+/* 'a' and 'b' are constants that are initially private, i.e. unknown to the adversary  */
+/*  Since f is public, the adversary can compute 'a' using  the equation f(x,x) = a that holds for any x. On the contrary, since 'b' is private and there are no useful equations to get b, the adversary is not able to produce facts of the form Db(_)  */
+/* So both events of the form Ba(x) and Ca() can occur, but no events of the form Db()  */
+/* Moreover the adversary is able to compute 'a' but not 'b' */
+
+functions: a/0 [private], b/0 [private], f/2
+equations: f(x,x) = a
+
+rule GenB:
+[In(x)]--[Ba(x)]->[B(x)]
+
+rule GenC:
+[In(a)]--[Ca()]->[C()]
+
+rule GenD:
+[In(b)]--[Db()]->[D()]
+
+
+lemma exB:
+  exists-trace
+    "Ex x #i. Ba(x) @i
+    "
+
+lemma exC:
+  exists-trace
+    "Ex #i. Ca() @i
+    "
+lemma n_exD:
+    "All #i. Db() @i ==> F
+    "
+
+// b is secret
+lemma b_is_sec: 
+    "not ( Ex  #i . KU(b) @ i ) "
+
+lemma b_is_sec2: 
+    "not ( Ex  #i . K(b) @ i ) "
+
+// a is not secret
+lemma a_is_n_sec: 
+    exists-trace
+    "Ex  #i . KU(a) @ i  "  // the adversary knows a at time i
+
+lemma a_is_n_sec2: 
+    exists-trace
+    "Ex  #i . K(a) @ i  "
+
+
+end

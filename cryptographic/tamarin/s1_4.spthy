@@ -1,0 +1,42 @@
+theory simple4
+begin
+
+functions: a/0, b/0
+
+// Infinite loop with --prove, OK in interactive mode with induction proof
+// Check that the only way to prove the lemma ‘Bs_Ba’ is by induction. 
+// Add a lemma stating that there exists a trace with events Bs(x) and Bs(y) such that x != y. 
+// Add a lemma stating that for any trace, an event Bs(x) can not occur twice with the same x.
+
+rule GenA:
+[Fr(~a)]--[Aa(~a)]->[A(~a)]
+
+rule GenB:
+[A(x)]--[Bs(x)]->[B(x)]
+
+rule GenB2:
+[B(x)]--[Ba(x)]->[B(x)]  // INDUCTION needed
+
+/* an event of the form Ba(x) can occur */
+
+lemma exB:
+  exists-trace
+    "Ex x #i. Ba(x) @i "
+
+/* each event of the form Ba(x) should be preceded by an event of the form Bs(x) */   
+/* but now we need to prove it by induction! */
+    
+lemma Bs_Ba:
+    "All x #i. Ba(x) @ i ==> Ex #j. Bs(x) @ j & j < i
+    "
+
+lemma exBs:
+  exists-trace
+    "Ex x y #i #j. (Bs(x) @ i & Bs(y) @ j & not(x = y))"  // cannot use ==>, use &
+
+lemma allBs:
+  // "All x #i. (Bs(x) @ i ==> not(Ex #j. not(#j = #i) & Bs(x) @ j))"
+  // No #j != #i exists such that Bs(x) occurs at j
+  "All x #i #j. (Bs(x) @ i & Bs(x) @ j ==> #i = #j)"
+
+end

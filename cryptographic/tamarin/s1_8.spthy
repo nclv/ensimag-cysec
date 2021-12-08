@@ -1,0 +1,21 @@
+theory simple_diff
+begin
+
+functions: h/1
+
+rule Send:
+[ Fr(~a), Fr(~b) ] --[ Secret( ~b ) ]->
+    [  Out( h(diff(~a,~b)) )
+    ]
+
+
+lemma B_is_secret:
+  " /* The intruder cannot know ~b: */
+    All B #i. (
+      /* ~b is claimed secret implies */
+      Secret(B) @ #i ==>
+      /* the adversary does not know '~b' */
+      not( Ex #j. K(B) @ #j )
+    )
+ "
+end

@@ -1,0 +1,38 @@
+theory simple5
+begin
+
+functions: a/0
+
+/* for each generated fact A(x) by the rule GenA, the rule Rev will send it to the adversary which can send it back */
+/* So an event of the form Ba(x) can occur, but not an event of type Ca(x) since A(x) has been consumed by the rule Rev */
+/* The same x can be sent twice by the adversary, hence an event of the form Da(x) can occur */
+
+rule GenA:
+[Fr(~a)]--[Aa(~a)]->[A(~a)]
+
+rule Rev:
+[A(x)]--[Rev(x)]->[Out(x)]
+
+rule GenB:
+[In(x)]--[Ba(x)]->[B(x)]  // same x can be send twice
+
+rule GenC:
+[In(x), A(x)]--[Ca(x)]->[C(x)]
+
+rule GenD:
+[In(x), B(x)]--[Da(x)]->[D(x)]
+
+
+lemma exB:
+  exists-trace
+    "Ex x #i. Ba(x) @i
+    "
+lemma nexC:
+    "All x #i. Ca(x) @i ==> F
+    "
+
+lemma exD:
+  exists-trace
+    "Ex x #i. Da(x) @i
+    "
+end

@@ -1,0 +1,41 @@
+theory simple3
+begin
+
+functions: a/0
+
+/* when marked with '!' before, facts are persistent. The rule GenA will always generate facts of the form !A(x) with a new 'x' value each time. But the '!' mark ensures that now we dispose of an unbounded number of 'copies' of A(x) for a generated fact !A(x) */
+/* So both events of the form Ba(x) and Ca(x) can occur */
+/* moreover, each event of the form Ba(x) should be preceded by an event of the form Aa(x) */
+
+
+rule GenA:
+[Fr(~a)]--[Aa(~a)]->[!A(~a)]
+
+rule GenB:
+[!A(x)]--[Ba(x)]->[B(x)]
+
+rule GenC:
+[!A(x), B(x)]--[Ca(x)]->[C(x)]
+
+/* an event of the form Ba(x) can occur */
+
+lemma exB:
+  exists-trace
+    "Ex x #i. Ba(x) @i
+    "
+
+/* an event of the form Ca(x) can occur */
+
+lemma exC:
+  exists-trace
+    "Ex x #i. Ca(x) @i
+    "
+ 
+/* each event of the form Ba(x) should be preceded by an event of the form Aa(x) */   
+
+lemma A_b_C:
+  "All x #i. Ba(x) @ i ==> Ex #j. Aa(x) @ j & j < i"
+    
+
+
+end
