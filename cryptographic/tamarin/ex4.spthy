@@ -1,0 +1,90 @@
+theory ex4
+begin 
+
+/*
+A -> B: senc(na, k)
+A <- B: senc(nb, k) || na
+*/
+
+builtins: symmetric-encryption
+
+// rule Register_key:
+//     [ Fr(~ltk) ] --> [ !Ltk($A, $B, ~ltk), !Ltk($B, $A, ~ltk) ]
+
+// rule Init_A:
+//     [ Fr(~id), !Ltk($A, $B, ~ltk) ] --[Create_A($A, ~id)]-> [St_A_1($A, ~id, ~ltk, $B)]
+
+// A is compromised (Reveal() event, lost it's key)
+rule Reveal_k_from_A:
+    [ St_A_1($A, <~k, ~na>) ] 
+    --[ Reveal($A) ]-> 
+    [ Out(~k) ]
+
+// B is compromised (Reveal() event, lost it's key)
+rule Reveal_k_from_B:
+    [ St_B_1($B, <~k, ~nb>) ] 
+    --[ Reveal($B) ]-> 
+    [ Out(~k) ]
+
+// Setup of A and B with key k, nonces na and nb
+rule Setup:
+    [ Fr(~k), Fr(~na), Fr(~nb) ] 
+    --[ Create_A($A), Create_B($B) ]-> 
+    [ St_A_1($A, <~k, ~na>), St_B_1($B, <~k, ~nb>) ]
+
+rule A_1_send:
+    [ St_A_1($A, <~k, ~na>) ] 
+    --[ Send_1($A, ~na) ]->
+    [ Out(senc(~na, ~k)) ]
+
+rule B_1_receive:
+    [ St_B_1($B, <~k, ~nb>), In(senc(~na, ~k)) ]
+    --[ Receive_1($B, ~na) ]->
+    [ St_B_Receive($B, ~na) ]
+
+rule B_2_send:
+    [ St_B_1($B, <~k, ~nb>), St_B_Receive($B, ~na) ]
+    --[ Send_2($B, ~nb) ]->
+    [ Out(<senc(~nb, ~k), ~na>) ]
+
+// 
+rule A_2_receive:
+    [ In(<senc(~nb, ~k), ~na>) ]
+    --[ Receive_2($A, ~nb), Commit($A, $B), Honest($A), Honest($B), Finish() ]->
+    [ St_A_Receive($A, ~nb) ]
+
+// protocol is executable ie. Finish() event exists and no reveal event exists
+lemma executable:
+    exists-trace
+    "Ex #i. Finish() @i & not (Ex X #j. Reveal(X) @j) "
+
+// First A sends na and then B receives na.
+lemma functional_1: 
+    exists-trace
+    "Ex A B na #i #j. Send_1(A, na) @i & Receive_1(B, na) @j & i < j"
+
+// Second B send nb and then A receives nb
+lemma functional_2: 
+    exists-trace
+    "Ex A B nb #i #j. Send_2(B, nb) @i & Receive_2(A, nb) @j & i < j"
+
+// A thinks that she is talking to B, but B did not necessarily executed a session of the protocol as initiator or responder
+lemma aliveness:
+    all-traces
+    "All A B #i. 
+        Commit(A, B) @ i ==> 
+        (Ex #j. Create_B(B) @j) | (Ex #j. Create_A(B) @ j) | (Ex X #r. Reveal(X) @ r & Honest(X) @i)"
+
+// rule A_1_send:
+//     [ St_A_1($A, ~na, ~ltk, $B), Fr(~na)] --[Send($A, senc(~na, ~ltk))]-> [ St_A_2($A, ~id, ~ltk, $B, ~na), Out(senc(~na, ~ltk)) ]
+
+// rule B_1_receive:
+//     [ In(senc(~na, ~ltk)) ] --> []
+
+// rule B_2_send:
+//     [Fr(~nb), In(senc(~na, ~ltk)), !Ltk($B, $A, ~ltk) ] --> [ Out(pair(senc(~nb, ~ltk), ~na)) ]
+
+// rule A_2_receive:
+//     [ In(pair(senc(~nb, ~ltk), ~na)) ] --> [ ]
+
+end

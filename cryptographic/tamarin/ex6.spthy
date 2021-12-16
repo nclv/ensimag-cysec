@@ -1,0 +1,67 @@
+theory ex6
+begin
+
+/*
+A -> B: sign(B, skA)
+A <- B: sign(A, skB)
+*/
+
+builtins: signing
+
+// Public key infrastructure for an agent (A or B)
+rule Register_pk:
+    [ Fr(~ltkA) ]
+    -->
+    [ !Ltk($A, ~ltkA), Out(pk(~ltkA)) ] 
+
+// Compromising an agent's long-term key
+rule Reveal_ltk:
+    [ !Ltk(A, ltkA) ] --[ Reveal(A) ]-> [ Out(ltkA) ]
+
+// TODO: fix error
+
+// Role A sends the first message
+rule A_1_send:
+    [ !Ltk($A, ~ltkA) ]
+    --[ Send($A, sign($B, ~ltkA), ~ltkA) ]->
+    [ St_A_1($A, ~ltkA, $B) , Out(sign($B, ~ltkA))]
+
+// Role B receives the first message
+rule B_1_receive:
+    [ In(sign($B, ~ltkA))]
+    --[ Receive($B, sign($B, ~ltkA), ~ltkA) ]->
+    [ St_B_1($B, pk(~ltkA), $A) ]
+
+// Role B sends the second message
+rule B_2_send:
+    [ !Ltk($B, ~ltkB) ]
+    --[ Send($B, sign($A, ~ltkB), ~ltkB), Running_weak($B, $A), Running_noninj($B, $A, sign($A, ~ltkB)) ]->
+    [ St_B_2($B, ~ltkB, $A) , Out(sign($A, ~ltkB))]
+
+// Role A receives the first message
+rule A_2_receive:
+    [ In(sign($A, ~ltkB))]
+    --[ Receive($A, sign($A, ~ltkB), ~ltkB), Commit_weak($A, $B), Commit_noninj($A, $B, sign($A, ~ltkB)), Honest($B), Honest($A), Finish() ]->
+    [ St_A_2($A, pk(~ltkB), $B) ]
+
+// protocol is executable ie. Finish() event exists and no reveal event exists
+lemma executable_finish:
+    exists-trace
+    "Ex #i. Finish() @i & not (Ex X #j. Reveal(X) @j) "
+
+/* succeeds as expected */
+lemma weakagreement:
+    all-traces
+    "All A B #i. 
+        Commit_weak(A, B) @i ==>
+        (Ex #j. Running_weak(B, A) @ j )| (Ex X #r. Reveal(X) @ r & Honest(X) @i)"
+
+/* fails as expected */
+// the initiator A thinks that she is talking to the responderB, but this is false, B did not necessarily executed as a responder, a session of the protocol with A
+lemma noninjectiveagreement:
+    all-traces
+    "All A B t #i. 
+        Commit_noninj(A, B, t) @i ==>
+        (Ex #j. Running_noninj(B, A, t) @ j & j < i)| (Ex X #r. Reveal(X) @ r & Honest(X) @i)"
+
+end

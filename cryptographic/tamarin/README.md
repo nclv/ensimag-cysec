@@ -1,6 +1,9 @@
 
 Tamarin compiled from source.
 
+https://github.com/tamarin-prover/manual/tree/master/code
+
+
 ## Usage
 
 ```bash

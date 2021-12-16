@@ -1,0 +1,91 @@
+theory Ex8_2
+begin
+
+/* We formalize the following protocol
+  protocol {
+    1. A -> B: {'1', A, NA}pk(B)
+    2. B -> A: {'2', B, K}pk(A), {'3', NA}K
+    3. A -> B: {'4', A, B, K}pk(B)
+  }
+*/
+builtins : asymmetric-encryption, symmetric-encryption
+
+rule  keyGen:
+  [Fr(~k)] --[ Setup($I, ~k) ]-> [!Ltk($I, ~k), !Pk($I, pk(~k)), Out(pk(~k)) ]
+
+
+rule Reveal:
+   [!Ltk($I, k)]--[Reveal($I)]->[Out(k)]
+
+/* 1. A -> B : {'1', A, NA}pk(B) */
+
+rule A_1_send:
+let m1A = aenc{'1', $A, ~na}pkB in
+[!Pk($B, pkB),  Fr(~na)] --[Create_A($A, $B), Send1(m1A) ]-> [ St_A_2($A, $B,  ~na), Out(m1A) ]
+
+rule B_1_recv_send:
+let m1B = aenc{'1', A, na}pk(kB) 
+    m2B1 = aenc{'2', $B, ~k}pkA    
+    m2B2 = senc{'3', na}~k 
+    m2B=<m2B1, m2B2> in
+[!Ltk($B, kB), !Pk(A, pkA), In(m1B), Fr(~k)] --[Create_B($B, A), Finish1(), Recv1(na, m1B), Send2(m2B1, m2B2), Running(A, $B, <'i', na, ~k>)]-> [ St_B_3($B, A, na, ~k), Out(m2B) ]
+
+/* 2. B -> A: {'2', K, B}pk(A), {'3', NA}K  */
+
+rule A_2_recv_send:
+let m2A1 = aenc{'2',B, k}pk(kA) 
+    m2A2 = senc{'3', na}k    
+    m3A= aenc{'4',A,B,k}pkB 
+    m2A=<m2A1, m2A2> in
+[St_A_2(A, B, na), !Ltk(A, kA), !Pk(B, pkB), In(m2A)] --[Finish2(),Recv2(na, k, m2A1, m2A2), Send3(m3A), Secret(A,B,na), Secret(A,B,k), Running(B,A, <'r', na,k>), Commit(A,B,<'i',na,k>), Honest(A), Honest(B)]->  [St_S_4(A, B, na, k), Out(m3A) ]
+
+/*    3. A -> B: {'4',K}pk(B) */
+
+rule B_3_recv:
+let m3B = aenc{'4',A,B,k}pk(kB) in 
+[!Ltk(B, kB), !Pk(A, pkA), St_B_3(B, A, na, k), In(m3B)] --[Finish3(), Recv3(k, m3B), Commit(B,A,<'r',na,k>), Secret(B,A,na), Secret(B,A ,k) ,Honest(A), Honest(B)]-> [St_B_4(B, A, na, k)]
+
+
+lemma types [sources]:
+  " (All na m1 #i. Recv1(na,  m1) @ i ==>  ((Ex #j. KU(na) @ j &  j < i) | (Ex #j. Send1(m1) @ j & j<i)))
+  & (All na k m2A1 m2A2 #i. Recv2(na, k, m2A1, m2A2) @ i ==> 
+     ((Ex #r. KU(k) @ r   & r < i) | (Ex  #j m22. Send2(m2A1, m22) @ j & j<i) ) &
+     ((Ex #r #rp. KU(k) @ r   & r < i & KU(na) @ rp   & rp < i) | (Ex  #j m21. Send2(m21, m2A2) @ j & j<i) )                                                         )
+ /*  & (All  k m3B #i. Recv3(k, m3B) @ i ==> 
+    (Ex #j. KU(k) @ j   & j < i) | (Ex  #j. Send3(m3B) @ j & j<i))  */
+"
+
+/* Check that the protocol is executable. If Tamarin finds an executable 
+   trace, we must still inspect the trace to verify that the protocol runs
+   as expected. Exercise: formulate a better lemma. */
+
+lemma secrecy_claim:
+  "not( Ex A B v #i. Secret(A, B, v) @i
+     &  (Ex #j. K(v) @j)
+         & not(Ex  #r. Reveal(A) @ r) & not(Ex #r.  Reveal(B)@r ) )
+  "
+// Injective agreement from the perspective of both the initiator and the responder.
+lemma injective_agree:
+  " /* Whenever somebody commits to running a session, then*/
+    All actor peer params #i.
+        Commit(actor, peer, params) @ i
+      ==>
+        /* there is somebody running a session with the same parameters */
+          (Ex #j. Running(actor, peer, params) @ j & j < i
+            /* and there is no other commit on the same parameters */
+            & not(Ex actor2 peer2 #i2.
+                    Commit(actor2, peer2, params) @ i2 & not(#i = #i2)
+                 )
+          )
+        /* or the adversary perform a long-term key reveal on actor or peer */
+        | (Ex #r. Reveal(actor) @ r)
+        | (Ex #r. Reveal(peer)  @ r)
+  "
+
+
+lemma executable:
+  exists-trace
+    "Ex #i. Finish3() @i  &  not( Ex A #j. Reveal(A)@j )
+    "
+
+end

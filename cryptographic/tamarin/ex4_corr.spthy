@@ -1,0 +1,75 @@
+theory ex4_corr
+begin 
+
+/*
+A -> B: senc(na, k)
+A <- B: senc(nb, k) || na
+*/
+
+builtins: symmetric-encryption
+
+// A is compromised (Reveal() event, lost it's key)
+rule Reveal_k_from_A:
+    [ !Ltk(A, B, ~k) ] 
+    --[ Reveal(A) ]-> 
+    [ Out(~k) ]
+
+// B is compromised (Reveal() event, lost it's key)
+rule Reveal_k_from_B:
+    [ !Ltk(B, A, ~k) ] 
+    --[ Reveal(B) ]-> 
+    [ Out(~k) ]
+
+rule Register_key:
+    [ Fr(~k) ] --> [ !Ltk($A, $B, ~k), !Ltk($B, $A, ~k) ]
+
+rule Init_A:
+    [ Fr(~idA), !Ltk($A, $B, ~k) ] --[ Create_A($A, ~idA) ]-> [ St_A_1($A, ~idA, ~k, $B) ]
+
+rule Init_B:
+    [ Fr(~idB), !Ltk($B, $A, ~k) ] --[ Create_B($B, ~idB) ]-> [ St_B_1($B, ~idB, ~k, $A) ]
+
+rule A_1_send:
+    [ St_A_1($A, ~idA, ~k, $B), Fr(~na) ] 
+    --[ Send($A, senc(~na, ~k)), OUT_B_1(senc(~na, ~k)) ]->
+    [ St_A_2($A, ~idA, ~k, $B, ~na), Out(senc(~na, ~k)) ]
+
+rule B_1_receive:
+    [ St_B_1($B, ~idB, ~k, $A), In(senc(na, ~k)) ]
+    --[ Receive($A, senc(na, ~k)), IN_A_1_na(na, senc(na, ~k)) ]->
+    [ St_B_2($B, ~idB, ~k, $A, na) ]
+
+rule B_2_send:
+    [ St_B_2($B, ~idB, ~k, $A, na), Fr(~nb) ]
+    --[ Send($B, <senc(~nb, ~k), na>), OUT_A_2(<senc(~nb, ~k), na>) ]->
+    [ St_B_3($B, ~idB, ~k, $A, na, ~nb), Out(<senc(~nb, ~k), na>) ]
+
+rule A_2_receive:
+    [ St_A_2($A, ~idA, ~k, $B, ~na), In(<senc(nb, ~k), ~na>) ]
+    --[ Receive($B, <senc(nb, ~k), ~na>), Commit($A, $B), Honest($A), Honest($B), Finish() ]->
+    [ St_A_3($A, ~idA, ~k, $B, ~na, nb) ]
+
+// protocol is executable ie. Finish() event exists and no reveal event exists
+lemma executable:
+    exists-trace
+    "Ex #i. Finish() @i & not (Ex X #j. Reveal(X) @j) "
+
+// First A sends na and then B receives na.
+lemma functional_1: 
+    exists-trace
+    "Ex A B na #i #j. Send(A, na) @i & Receive(B, na) @j & i < j"
+
+// Second B send nb and then A receives nb
+lemma functional_2: 
+    exists-trace
+    "Ex A B nb #i #j. Send(B, nb) @i & Receive(A, nb) @j & i < j"
+
+/* fails as expected */
+// A thinks that she is talking to B, but B did not necessarily executed a session of the protocol as initiator or responder
+lemma aliveness:
+    all-traces
+    "All A B #i. 
+        Commit(A, B) @ i ==> 
+        (Ex #j id. Create_B(B, id) @ j) | (Ex #j id. Create_A(B, id) @ j ) | (Ex X #r. Reveal(X) @ r & Honest(X) @i)"
+
+end

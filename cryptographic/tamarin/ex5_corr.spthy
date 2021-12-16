@@ -1,0 +1,70 @@
+theory ex5_corr
+begin 
+
+/*
+A -> B: A,{na}_pk(B)
+A <- B: na
+*/
+
+builtins: asymmetric-encryption
+
+/* Public key infrastructure */
+
+rule Register_pk:
+    [ Fr(~ltkB) ]  // private key of B (can be any agent)
+    -->
+    [ !Ltk($B, ~ltkB),  Out(pk(~ltkB)) ]
+    
+rule Reveal_ltk:
+    [ !Ltk(B, ltkB) ] 
+    --[ Reveal(B) ]-> 
+    [ Out(ltkB) ]
+
+rule Init_A:
+    [ Fr(~idA), !Ltk($B, ~ltkB) ] --[ Create_A($A, ~idA) ]-> [ St_A_1($A, ~idA, pk(~ltkB), $B) ]
+
+rule Init_B:
+    [ Fr(~idB), !Ltk($B, ~ltkB) ] --[ Create_B($B, ~idB) ]-> [ St_B_1($B, ~idB, ~ltkB) ]
+
+rule A_1_send:
+    [ St_A_1($A, ~idA, pk(ltkB), $B), Fr(~na) ] 
+    --[ Send($A, <$A, aenc(~na, pk(ltkB))>), OUT_B_1(<$A, aenc(~na, pk(ltkB))>) ]->
+    [ St_A_2($A, ~idA, pk(ltkB), $B, ~na), Out(<$A, aenc(~na, pk(ltkB))>) ]
+
+rule B_1_receive:
+    [ St_B_1($B, ~idB, ~ltkB), In(<$A, aenc(na, pk(~ltkB))>) ]
+    --[ Receive($A, <$A, aenc(na, pk(~ltkB))>), IN_A_1_na(na, <$A, aenc(na, pk(~ltkB))>) ]->
+    [ St_B_2($B, ~idB, ~ltkB, $A, na) ]
+
+rule B_2_send:
+    [ St_B_2($B, ~idB, ~ltkB, $A, na) ]
+    // Running($B, $A) : B executed a session of the protocol with A
+    --[ Send($B, na), Running($B, $A), OUT_A_2(na) ]->  
+    [ St_B_3($B, ~idB, ~ltkB, $A, na), Out(na) ]
+
+rule A_2_receive:
+    [ St_A_2($A, ~idA, pk(~ltkB), $B, na), In(na) ]
+    --[ Receive($B, na), Commit($A, $B), Honest($A), Honest($B), Finish() ]->
+    [ St_A_3($A, ~idA, pk(~ltkB), $B, na) ]
+
+// protocol is executable ie. Finish() event exists and no reveal event exists
+lemma executable:
+    exists-trace
+    "Ex #i. Finish() @i & not (Ex X #j. Reveal(X) @j) "
+
+/* succeeds as expected */
+lemma aliveness:
+    all-traces
+    "All A B #i. 
+        Commit(A, B) @ i ==> 
+        (Ex #j id. Create_B(B, id) @ j) | (Ex #j id. Create_A(B, id) @ j ) | (Ex X #r. Reveal(X) @ r & Honest(X) @i)"
+
+/* fails as expected */
+// A thinks that she is talking to B, but this is false, B did not necessarily executed a session of the protocol with A
+lemma weakagreement:
+    all-traces
+    "All A B #i. 
+        Commit(A, B) @i ==>
+        (Ex #j. Running(B, A) @ j )| (Ex X #r. Reveal(X) @ r & Honest(X) @i)"
+
+end

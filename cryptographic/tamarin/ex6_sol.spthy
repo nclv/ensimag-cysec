@@ -1,0 +1,145 @@
+theory WeakAgreeVSnonInjAgree
+begin
+
+builtins: signing
+
+// pre-shared key distribution
+rule Register_pk:
+  [ Fr(~ltkA) ]
+  --[ Register($A) ]->
+  [ !Ltk($A, ~ltkA), Out(pk(~ltkA))] 
+
+rule Reveal_ltk:
+  [ !Ltk(A, ltkA) ] --[ Reveal(A) ]-> [ Out(ltkA) ]
+
+/* We formalize the following protocol
+  protocol {
+    1. A -> B: {B}sk(A)
+    2. A <- B: {A}sk(B)
+  }
+*/
+
+rule Init_A:
+  [ Fr(~id)
+  , !Ltk(I, ltkI), !Ltk(R, ltkR)
+  ]
+--[ Create_A(I, ~id) ]->
+  [ St_A_1(I, ~id, ltkI, pk(ltkR), R)
+  ]
+
+rule Init_B:
+  [ Fr(~id)
+  , !Ltk(R, ltkR), !Ltk(I, ltkI)
+  ]
+--[ Create_B(R, ~id) ]->
+  [ St_B_1(R, ~id, ltkR, pk(ltkI), I)
+  ]
+  
+/*   1. A -> B: {B}sk(A)  */
+
+rule A_1_send:
+  let mA1 = sign{R}ltkI
+  in
+  [ St_A_1(I, ~id, ltkI, pkltkR, R)
+  ]
+--[ Send(I, mA1) 
+  , Running(I, R, '1') // constant '1' used, as this is for matching with a commit for responder if we are interested
+  ]->
+  [ St_A_2(I, ~id, ltkI, pkltkR, R) 
+  , Out(mA1)
+  ]
+
+rule B_1_receive:
+  let mB1 = sign{R}ltkI
+  in
+  [ St_B_1(R, ~id, ltkR, pk(ltkI), I)
+  , In(mB1)
+  ]
+--[ Recv(R, mB1) 
+  ]->
+  [ St_B_2(R, ~id, ltkR, pk(ltkI), I)
+  ]
+  
+/*   2. A <- B: {A}sk(B) */
+
+rule B_2_send:
+  let mB2 = sign{I}ltkR
+  in
+  [ St_B_2(R, ~id, ltkR, pkltkI, I)
+  ] 
+--[ Send(R, mB2)
+  , Running(R, I, '2') // constant '2' used here as running term, as no actual other term is available; this is for responder-running and initiator-commit when roles matter (inj/non-inj agree), but will be ignored for weak agreement
+  ]->
+  [ St_B_3(R, ~id, ltkR, pkltkI, I)
+  , Out(mB2)
+  ]
+
+rule A_2_receive:
+  let mA2 = sign{I}ltkR
+  in
+  [ St_A_2(I, ~id, ltkI, pk(ltkR), R) 
+  , In(mA2)
+  ]
+--[ Receive(I, mA2)
+  , Commit(I, R, '2') // constant '2' as term, see above!
+  , Honest(I), Honest(R)
+  , Finish()
+  ]->
+  [ St_A_3(I, ~id, ltkI, pk(ltkR), R) 
+  ]
+
+
+lemma executable:
+  exists-trace
+    "Ex #i. Finish() @i & not (Ex A #j. Reveal(A)@j)
+    "
+
+
+// Injective agreement from the perspective of  the initiator.
+// fails
+lemma injective_agree:
+  " /* Whenever somebody commits to running a session, then*/
+    All actor peer params #i.
+        Commit(actor, peer, params) @ i
+      ==>
+        /* there is somebody running a session with the same parameters */
+          (Ex #j. Running(peer, actor, params) @ j & j < i
+            /* and there is no other commit on the same parameters */
+            & not(Ex actor2 peer2 #i2.
+                    Commit(actor2, peer2, params) @ i2 & not(#i = #i2)
+                 )
+          )
+        /* or the adversary perform a long-term key reveal on assumed honest participant */
+        | (Ex X #r. Reveal(X) @ r & Honest(X) @i)
+  "
+
+
+// Non-Injective agreement from the perspective of the initiator.
+// fails
+lemma noninjective_agree:
+  " /* Whenever somebody commits to running a session, then*/
+    All actor peer params #i.
+        Commit(actor, peer, params) @ i
+      ==>
+        /* there is somebody running a session with the same parameters */
+          (Ex #j. Running(peer, actor, params) @ j
+          )
+        /* or the adversary perform a long-term key reveal on assumed honest participant */
+        | (Ex X #r. Reveal(X) @ r & Honest(X) @i)
+  "
+
+
+// weak agreement [note that instead of adding another Commit/Running pair with only 2 arguments we add t1/t2 that are unrelated!]
+// holds
+lemma weakagree:
+  all-traces
+   "All A B t1 #i. Commit(A,B, t1) @i
+     ==> (Ex t2 #j. Running(B,A, t2) @j)
+         | (Ex X #r. Reveal(X) @ r & Honest(X) @i)"
+
+
+//axiom onekeypername:
+//  "All A #i #j. Register(A)@i & Register(A)@j ==> #i = #j"
+
+end
+

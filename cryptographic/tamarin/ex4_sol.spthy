@@ -1,0 +1,118 @@
+theory ALIVEfails
+begin
+
+builtins: symmetric-encryption
+
+// Key infrastructure
+rule Register_keys:
+  [ Fr(~ltk) ]
+  -->
+  [ !Ltk($A, $B, ~ltk) , !Ltk ($B, $A, ~ltk) ]
+
+rule Reveal_ltk:
+  [ !Ltk(A, B, ltk) ] --[ Reveal(A), Reveal(B) ]-> [ Out(ltk) ]
+
+
+/* We formalize the following protocol
+  protocol {
+    1. A -> B: {|na|}k(A,B)
+    2. A <- B: {|nb|}k(A,B), na
+ // 3. A -> B: nb
+  }
+*/
+
+rule Init_A:
+  [ Fr(~id)
+  , !Ltk(I, R, ltk)
+  ]
+--[ Create_A(I, ~id) ]->
+  [ St_A_1(I, ~id, ltk, R)
+  ]
+
+rule Init_B:
+  [ Fr(~id)
+  , !Ltk(I, R, ltk)
+  ]
+--[ Create_B(R, ~id) ]->
+  [ St_B_1(R, ~id, ltk, I)
+  ]
+
+/*     1. A -> B: {|na|}k(A,B) */
+
+rule A_1_send:
+  [ St_A_1(I, ~id, ltk, R) 
+  , Fr(~ni)
+  ]
+--[ Send(I, senc{~ni}ltk) 
+  , OUT_I_1(senc{~ni}ltk)
+  ]->
+  [ St_A_2(I, ~id, ltk, R, ~ni) 
+  , Out(senc{~ni}ltk)
+  ]
+
+rule B_1_receive:
+  [ St_B_1(R, ~id, ltk, I)
+  , In(senc{ni}ltk)
+  ]
+--[ Recv(R, senc{ni}ltk) 
+  , IN_R_1_ni(ni, senc{ni}ltk)
+  ]->
+  [ St_B_2(R, ~id, ltk, I, ni)
+  ]
+
+/*    2. A <- B: {|nb|}k(A,B), na */
+
+rule B_2_send:
+  [ St_B_2(R, ~id, ltk, I, ni)
+  , Fr(~nr)
+  ]
+--[ Send(R, <senc{~nr}ltk, ni>)
+  , Running(R, I)
+  ]->
+  [ St_B_3(R, ~id, ltk, I, ni, ~nr)
+  , Out(<senc{~nr}ltk, ni>)
+  ]
+
+rule A_2_receive:
+  [ St_A_2(I, ~id, ltk, R, ~ni) 
+  , In(<senc{nr}ltk,~ni>)
+  ]
+--[ Recv(I, <senc{nr}ltk,~ni>)
+  , Commit(I, R), Honest(R), Honest(I)
+  , Finish()
+  ]->
+  [ St_A_3(I, ~id, ltk, R, ~ni) 
+  ]
+
+// The last message is irrelevant for the property, so we ignore it.
+
+// using this axiom to restrict state space, we still find the attack, so it is ok.
+axiom initiator_singleton:
+  "All I id1 #i1 id2 #i2. Create_A(I, id1) @i1 & Create_A(I, id2) @i2 ==> #i1 = #i2"
+
+// This typing lemma is incorrect. But, as it only restricts the state space, and we still find an attack, that is ok!
+lemma types [typing]:
+  " (All ni m1 #i.
+       IN_R_1_ni( ni, m1) @ i
+       ==>
+       ( (Ex #j. KU(ni) @ j & j < i)
+       | (Ex #j. OUT_I_1( m1 ) @ j)
+       )
+    )
+  "
+
+
+//protocol is executable
+lemma executable:
+  exists-trace
+    "Ex #i. Finish() @i & not (Ex X #j. Reveal(X) @j) "
+
+// attack found
+lemma aliveness:
+  all-traces
+    "All A B #i. Commit(A,B) @ i
+      ==> (Ex #j id. Create_B(B,id) @j) | (Ex #j id. Create_A(B,id)@j)
+          | (Ex X #r. Reveal(X) @ r & Honest(X) @i)"
+
+end
+
