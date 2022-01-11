@@ -1,0 +1,48 @@
+# 08000318 <password>:
+#  8000318:	b57f      	push	{r0, r1, r2, r3, r4, r5, r6, lr}
+#  800031a:	4b14      	ldr	r3, [pc, #80]	; (800036c <password+0x54>)
+#  800031c:	ac02      	add	r4, sp, #8	; pw
+#  800031e:	4606      	mov	r6, r0
+#  8000320:	6818      	ldr	r0, [r3, #0]
+#  8000322:	889b      	ldrh	r3, [r3, #4]
+#  8000324:	80a3      	strh	r3, [r4, #4]
+#  8000326:	2301      	movs	r3, #1		; char passok = 1;
+#  8000328:	f88d 3007 	strb.w	r3, [sp, #7]	; store passok at [sp, #7]
+#  800032c:	9002      	str	r0, [sp, #8]
+#  800032e:	f000 fa2f 	bl	8000790 <trigger_high>
+
+
+; Prepare the for
+#  8000332:	2200      	movs	r2, #0		; cnt = 0 in r2
+#  8000334:	f89d 1007 	ldrb.w	r1, [sp, #7]	; load passok in r1
+#  8000338:	4613      	mov	r3, r2		; copy of cnt in r3
+
+; Body of the for
+#  800033a:	5cf5      	ldrb	r5, [r6, r3]	; passwd[cnt] in r5
+#  800033c:	5ce0      	ldrb	r0, [r4, r3]	; pw[cnt] in r0
+#  800033e:	3301      	adds	r3, #1		; cnt++
+#  8000340:	4285      	cmp	r5, r0		; comparison between pw[cnt] and passwd[cnt]
+#  8000342:	bf1c      	itt	ne
+#  8000344:	2201      	movne	r2, #1		; if previous comparison is not equal, r2 = 1
+#  8000346:	2100      	movne	r1, #0		; if previous comparison is not equal, passok = 0
+#  8000348:	2b05      	cmp	r3, #5		; comparison between cnt and 5
+#  800034a:	d1f6      	bne.n	800033a <password+0x22>	; if cnt != 5, jump to # 800033a
+
+; After the for, treatment of the result of the if to know what to store in r1 (passok)
+#  800034c:	b10a      	cbz	r2, 8000352 <password+0x3a>	; if r2 is null, jump to # 8000352 (password is always 1)
+#  800034e:	f88d 1007 	strb.w	r1, [sp, #7]	; load 0 in password => normally if r2 is not null, that means that pw[cnt] != passwd[cnt] for a cnt, so we change the value of passok
+
+
+#  8000352:	f000 fa24 	bl	800079e <trigger_low>
+#  8000356:	f10d 0207 	add.w	r2, sp, #7
+#  800035a:	2101      	movs	r1, #1
+#  800035c:	2072      	movs	r0, #114	; 0x72
+#  800035e:	f000 f911 	bl	8000584 <simpleserial_put>
+#  8000362:	f89d 0007 	ldrb.w	r0, [sp, #7]
+#  8000366:	b004      	add	sp, #16
+#  8000368:	bd70      	pop	{r4, r5, r6, pc}
+#  800036a:	bf00      	nop
+#  800036c:	080014dc 	stmdaeq	r0, {r2, r3, r4, r6, r7, sl, ip}
+
+
+=> So the instruction # 800034e might have faulted : the value 0 is never stored in passok, so passok=1 that means that the comparison between pw and passwd was successful
