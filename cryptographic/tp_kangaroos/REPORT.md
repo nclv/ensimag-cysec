@@ -3,8 +3,11 @@
 By **Elina Houde** and **Nicolas Vincent**.
 
 Program compilation (check that your are in the root directory) :
-```
+```bash
 make
+
+# if you use clangd, use make clean; bear -- make to generate the compile_commands.json file and
+# enable editor integration.
 ```
 
 ## Preparatory work
