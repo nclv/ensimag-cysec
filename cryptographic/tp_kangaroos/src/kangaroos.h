@@ -10,4 +10,6 @@ int test_gexp(void);
 
 bool is_equal(num128 result, num128 expected);
 
+num128 dlog64(num128 target);
+
 #endif
