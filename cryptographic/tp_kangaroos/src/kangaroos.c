@@ -156,10 +156,10 @@ bool is_distinguished(num128 x, double p) {
 
 void add_trap(trap *traps_list, num128 x, uint64_t exponent) {
 	trap *xi = NULL;
-	HASH_FIND(hh, traps_list, &x, sizeof(num128), xi);
+	HASH_FIND(hh, traps_list, &x.s, sizeof(uint128_t), xi);
 	if (xi == NULL) {
 		xi = new_trap(x, exponent);
-		HASH_ADD(hh, traps_list, x, sizeof(num128), xi);
+		HASH_ADD(hh, traps_list, x, sizeof(uint128_t), xi);
 	}
 }
 
@@ -167,11 +167,14 @@ void jump(uint64_t *ej, uint64_t k, double p, num128 *x,
 		  uint64_t *last_exponent, trap *traps_list, trap *verify_traps_list,
 		  trap *element_trap) {
 	uint64_t exponent = get_exponent_for_subset(ej, k, *x);
+
 	*x = mul11585(*x, gexp(exponent));
+
 	(*last_exponent) += exponent;
+
 	if (is_distinguished(*x, p)) {
 		add_trap(traps_list, *x, *last_exponent);
-		HASH_FIND(hh, verify_traps_list, &x, sizeof(num128), element_trap);
+		HASH_FIND(hh, verify_traps_list, &x->s, sizeof(uint128_t), element_trap);
 	}
 }
 

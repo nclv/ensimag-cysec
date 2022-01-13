@@ -1,8 +1,8 @@
 #ifndef __KANGAROOS___
 #define __KANGAROOS___
 
-#include <stdbool.h>
 #include "mul11585.h"
+#include <stdbool.h>
 
 num128 fast_exp(uint64_t g, uint64_t x);
 num128 gexp(uint64_t x);

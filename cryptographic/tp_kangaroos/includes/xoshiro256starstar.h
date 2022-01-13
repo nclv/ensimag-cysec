@@ -11,7 +11,6 @@
 #ifndef __XOSHIRO256starstar___
 #define __XOSHIRO256starstar___
 
-
 #include <stdint.h>
 
 uint64_t xoshiro256starstar_random(void);

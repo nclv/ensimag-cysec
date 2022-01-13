@@ -7,10 +7,12 @@
 #include <stdint.h>
 #include <stdio.h>
 
-typedef union
-{
-    unsigned __int128 s;
-    uint64_t t[2];
+// A 128-bit integer type is only ever available on 64-bit targets
+#define uint128_t unsigned __int128
+
+typedef union {
+	uint128_t s;
+	uint64_t t[2];
 } num128;
 
 num128 mul11585(num128 a, num128 b);
