@@ -112,7 +112,8 @@ int test_gexp(void) {
  * @return bool, true if equal, false otherwise
  */
 bool is_equal(num128 result, num128 expected) {
-	return (result.t[0] == expected.t[0]) & (result.t[1] == expected.t[1]);
+	// or (result.t[0] == expected.t[0]) & (result.t[1] == expected.t[1]);
+	return result.s == expected.s;
 }
 
 uint64_t get_exponent_for_subset(uint64_t *ej, uint64_t k, num128 x) {
@@ -174,7 +175,8 @@ void jump(uint64_t *ej, uint64_t k, double p, num128 *x,
 
 	if (is_distinguished(*x, p)) {
 		add_trap(traps_list, *x, *last_exponent);
-		HASH_FIND(hh, verify_traps_list, &x->s, sizeof(uint128_t), element_trap);
+		HASH_FIND(hh, verify_traps_list, &x->s, sizeof(uint128_t),
+				  element_trap);
 	}
 }
 
