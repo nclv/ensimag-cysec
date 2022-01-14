@@ -1,3 +1,4 @@
+#include <bits/stdint-uintn.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -137,46 +138,55 @@ uint64_t get_exponent_for_subset(uint64_t *ej, uint64_t k, num128 x) {
 
 void fill_exponents(uint64_t *ej, uint64_t k, uint64_t mu) {
 	uint64_t sum = 0;
-	for (uint64_t j = 0; j < k; j++) {
-		ej[j] = (uint64_t)(1) << j;
+	for (uint64_t j = 0; j < k-1; j++) {
+		ej[j] = ((uint64_t)(1) << j);
+        //ej[j] = ((uint64_t)(1) << j) * k / 2;
+
 		sum += ej[j];
-		printf("%ld-", ej[j]);
+		printf("%lx-", ej[j]);
 	}
-	printf("sum %ld, %ld\n", sum, ((1 << k) - 1) / k);
-	printf("mu %ld\n", mu);
+    ej[k-1] = mu*k - sum;
+
+	sum += ej[k-1];
+	printf("%lx-", ej[k-1]);
+	printf("k %lx\n", k);
+	printf("sum %lx, %lx\n", sum, sum / k);
+	printf("mu %lx\n", mu);
 }
 
 bool is_distinguished(num128 x, double p) {
-	// printf("%lf\n", p);
-	// printf("%ld\n", (uint64_t) (p * pow(2, 64)));
-	if (x.t[0] % ((uint64_t)(1 / p)) == 0) {
-		printf("distinct");
-	}
-	return x.t[0] < p * pow(2, 64);
+	
+	if ((x.t[0] % (1ULL << 26)) == 0) {
+		printf("DIS %ld", 1UL);
+        return true;
+	} else {
+        return false;
+    }
+	//return ((x.t[0] & ((1ULL << 27)-1ULL)) == 0);
 }
 
-void add_trap(trap *traps_list, num128 x, uint64_t exponent) {
+void add_trap(trap **traps_list, num128 x, uint64_t exponent) {
 	trap *xi = NULL;
-	HASH_FIND(hh, traps_list, &x.s, sizeof(uint128_t), xi);
+	HASH_FIND(hh, *traps_list, &x, sizeof(num128), xi);
 	if (xi == NULL) {
 		xi = new_trap(x, exponent);
-		HASH_ADD(hh, traps_list, x, sizeof(uint128_t), xi);
+		HASH_ADD(hh, *traps_list, x, sizeof(num128), xi);
+
 	}
 }
 
 void jump(uint64_t *ej, uint64_t k, double p, num128 *x,
-		  uint64_t *last_exponent, trap *traps_list, trap *verify_traps_list,
-		  trap *element_trap) {
+		  uint64_t *last_exponent, trap **traps_list, trap *verify_traps_list,
+		  trap **element_trap) {
 	uint64_t exponent = get_exponent_for_subset(ej, k, *x);
 
-	*x = mul11585(*x, gexp(exponent));
+    *x = mul11585(*x, gexp(exponent));
 
 	(*last_exponent) += exponent;
 
 	if (is_distinguished(*x, p)) {
 		add_trap(traps_list, *x, *last_exponent);
-		HASH_FIND(hh, verify_traps_list, &x->s, sizeof(uint128_t),
-				  element_trap);
+		HASH_FIND(hh, verify_traps_list, x, sizeof(num128), *element_trap);
 	}
 }
 
@@ -187,11 +197,13 @@ void jump(uint64_t *ej, uint64_t k, double p, num128 *x,
 // and how to pick the exponents e_i, the sets S_i and D
 num128 dlog64(num128 target) {
 	// num128 result;
-	double W = pow(2, 64);
+
+    // W = 2^64
+	//double W = pow(2, 64);
 	// According to the heuristic analysis
-	uint64_t k = (uint64_t)log2(W) / 2 - 1; // = 31
-	uint64_t mu = (uint64_t)sqrt(W) / 2;
-	double p = log2(W) / sqrt(W);
+	uint64_t k = 36; // log2(W) / 2
+	uint64_t mu = 1ULL << 31; //sqrt(W) / 2 = 2^31
+	double p = 1.0 / pow(2, 26); // log2(W) / sqrt(W) = 32/2^32 = 2^5 / 2^32 = 2^(5-32) = 1/2^27
 
 	// Pick k exponents e_j s.T. their average 1/k * Sum(e_j) from j=1 to k ~= µ
 	uint64_t ej[k];
@@ -200,44 +212,60 @@ num128 dlog64(num128 target) {
 	trap *xi_traps = NULL; /* important! initialize to NULL */
 	trap *yi_traps = NULL; /* important! initialize to NULL */
 	trap *element_trap = NULL;
+	trap *element_trap_y = NULL;
+
 
 	// Initialisation of the tame kangaroo's sequences
-	num128 x = gexp((uint64_t)W / 2);
-	printf("x = g^W/2");
-	print_num128(x);
-	uint64_t b_exponent = (uint64_t)W / 2;
+    uint64_t b_exponent = 1ULL << 63; // W / 2 = 2^63
+ 	num128 x = gexp(b_exponent);
 	if (is_distinguished(x, p))
-		add_trap(xi_traps, x, b_exponent);
+		add_trap(&xi_traps, x, b_exponent);
 
 	// Initialisation of the wild kangaroo's sequences
 	num128 y = target;
 	uint64_t c_exponent = (uint64_t)0;
 	if (is_distinguished(y, p))
-		add_trap(yi_traps, y, c_exponent);
+		add_trap(&yi_traps, y, c_exponent);
 
 	time_t endwait;
 	time_t start = time(NULL);
-	time_t seconds = 60 * 10; // end loop after 10 minutes
+	time_t seconds = 60 * 20; // end loop after 10 minutes
 
 	endwait = start + seconds;
 
 	printf("start time is : %s", ctime(&start));
+	uint64_t i = 0;
+	while (element_trap == NULL && element_trap_y == NULL){ //&& (start < endwait)) {
+		jump(ej, k, p, &x, &b_exponent, &xi_traps, yi_traps,
+			 &element_trap); // Compute a new xi
+		jump(ej, k, p, &y, &c_exponent, &yi_traps, xi_traps,
+				&element_trap_y); // Compute a new yi
+		//start = time(NULL);
+		i++;
+	}
 
-	while ((start < endwait) && element_trap == NULL) {
-		jump(ej, k, p, &x, &b_exponent, xi_traps, yi_traps,
-			 element_trap); // Compute a new xi
-		if (element_trap != NULL) {
-			printf("exp %ld", b_exponent - element_trap->exponent);
+	if (element_trap_y != NULL) {
+		if (c_exponent > element_trap_y->exponent) {
+			printf("exp2 %lx\n", c_exponent - element_trap_y->exponent);
+			print_num128(gexp(c_exponent - element_trap_y->exponent));
 		} else {
-			jump(ej, k, p, &y, &c_exponent, yi_traps, xi_traps,
-				 element_trap); // Compute a new yi
-			if (element_trap != NULL)
-				printf("exp %ld", c_exponent - element_trap->exponent);
+			printf("exp2 %lx\n", element_trap_y->exponent - c_exponent);
+			print_num128(gexp(element_trap_y->exponent - c_exponent));
+		}
+	} else {
+		if (b_exponent > element_trap->exponent) {
+			printf("exp %lx\n", b_exponent - element_trap->exponent);
+			print_num128(gexp(b_exponent - element_trap->exponent));
+		} else {
+			printf("exp %lx\n", element_trap->exponent - b_exponent);
+			print_num128(gexp(element_trap->exponent - b_exponent));
 		}
 	}
 
+    start = time(NULL);
 	printf("end time is : %s", ctime(&start));
-	if (element_trap != NULL) {
+	printf("\nnb de tour de boucle :%lx\n", i);
+	if (element_trap != NULL || element_trap_y != NULL) {
 		printf("TRAPPED !!!\n");
 	} else {
 		printf("ECHEC :(");
@@ -246,6 +274,41 @@ num128 dlog64(num128 target) {
 	delete_all(xi_traps);
 	delete_all(yi_traps);
 	return target;
+}
+
+void verify_exponents() {
+    uint64_t k = 36; // log2(W) / 2
+	uint64_t mu = 1ULL << 31; //sqrt(W) / 2 = 2^31
+
+	// Pick k exponents e_j s.T. their average 1/k * Sum(e_j) from j=1 to k ~= µ
+	uint64_t ej[k];
+	fill_exponents(ej, k, mu);
+    uint64_t sum = 0;
+	for (uint64_t j = 0; j < k; j++) {
+		sum += ej[j];
+        if (ej[j] == 0) {
+            printf("Coef %lu nul\n", j);
+            exit(0);
+        }
+	}
+	printf("sum %lx\n", sum / k);
+	printf("mu %lx\n", mu);
+}
+
+void verify_trap() {
+    // When the target is x_1, we got trapped
+    uint64_t k = 36; // log2(W) / 2
+	uint64_t mu = 1ULL << 31; //sqrt(W) / 2 = 2^31
+
+    uint64_t ej[k];
+	fill_exponents(ej, k, mu);
+    uint64_t b_exponent = 1ULL << 63; // W / 2 = 2^63
+    num128 x = gexp(b_exponent);
+    uint64_t exponent = get_exponent_for_subset(ej, k, x);
+
+    num128 new_x = mul11585(x, gexp(exponent));
+	print_num128(new_x);
+    dlog64(new_x);
 }
 
 int main(int argc, char **argv) {
@@ -258,6 +321,7 @@ int main(int argc, char **argv) {
 
 	printf("---Implementing kangaroos---\n");
 	num128 target = {.t = {0xB6263BF2908A7B09ULL, 0x71AC72AF7B138ULL}};
+    verify_trap();
 	dlog64(target);
 	return 0;
 }
