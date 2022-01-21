@@ -81,14 +81,17 @@ Choosing the exponents in the set of jumps as powers of two works fine in princi
 The algorithm require only $O(log(W))$ memory thanks to the set of distinguished elements.
 
 ### Q7.
+*All the tests were done on the value `0x71AC72AF7B138B6263BF2908A7B09`.*
+
 When we decrease the value of $p$ in our distinguisher, there are less distinguished points. After a threshold, there are not enough distinguished points to compute the discrete log.
 
 If we use a not so random function for our exponents, `exponent = (rand() % 2 == 0) ? mu - std : mu + std;` (biased to high values, only two different values, $µ + std$ may overflow), we observe that the program take a very long time (nothing was found yet). This is a bad distribution of mean $µ$ because there are only 2 very big values. Recall exponents should be small in comparison with the size of the group.
 
 Then we used another random function : `exponent = (uint64_t) rand() % (2 * mu);`. We observe that the mean value of the exponents is close to $µ$. Choosing the exponents uniformly at random from the interval $[0, 2µ]$ yielded good results (2min40 with $k = 36$ and 2min10s with $k = 32$).
 
-
 We modified the value of $k$ from $log(W) / 2 = 32$ to a value that gave us a mean closer to $µ$ with the power of two: $log(sqrt(W)) + log(log(sqrt(W))) - 1 = 32 + 5 - 1 = 36$. It had no major impact on the runtime (1min24s with $k = 32$ vs. 2min40s with $k = 36$).
+
+If we change the starting value of the tame kangaroo to $g^{2^{32}}$ it is even faster (only **36s** with $k = 32$ and **22s** with $k = 36$ using `rand() % (2 * mu)` or the powers of two as exponents).
 
 ## External sources
 
