@@ -6,7 +6,7 @@
 #include "uthash.h" // https://troydhanson.github.io/uthash/
 
 typedef struct trap {
-	uint128_t x; // hash table key
+	num128 x; // hash table key
 						 // x = g^exponent for the tame kangaroo, h *g^exponent
 						 // for the wild kangaroo
 	uint64_t exponent;
@@ -16,5 +16,6 @@ typedef struct trap {
 trap *new_trap(num128 x, uint64_t exponent);
 void delete_all(trap *traps);
 void print_trap(trap *trap_entry);
+void print_traps(trap *traps);
 
 #endif

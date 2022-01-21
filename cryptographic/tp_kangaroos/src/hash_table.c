@@ -13,7 +13,8 @@ trap *new_trap(num128 x, uint64_t exponent) {
 		return NULL;
 	}
 
-	t->x = x.s;
+	(t->x).t[0] = x.t[0];
+	(t->x).t[1] = x.t[1];
 	t->exponent = exponent;
 
 	return t;
@@ -37,9 +38,20 @@ void delete_all(trap *hash_table) {
  * print_trap prints @hash_table_entry on the terminal.
  */
 void print_trap(trap *trap_entry) {
-	num128 n = {.s = trap_entry->x};
+	//num128 n = {.s = trap_entry->x};
 
 	printf("(");
-	print_num128(n);
-	printf(" , %ld)\n", trap_entry->exponent);
+	//print_num128(n);
+	print_num128(trap_entry->x);
+	printf(" , %lx)", trap_entry->exponent);
+}
+
+void print_traps(trap *traps) {
+	trap *current_trap, *tmp;
+
+	HASH_ITER(hh, traps, current_trap, tmp) {
+		print_trap(current_trap);
+		printf("-");
+	}
+	printf("\n");
 }

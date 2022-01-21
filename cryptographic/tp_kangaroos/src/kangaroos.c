@@ -11,6 +11,20 @@
 #include "mul11585.h"
 #include "xoshiro256starstar.h"
 
+/* According to the heuristic analysis */
+
+// W : size of the interval
+// W = 2^64
+
+// k : number of subsets of G, number of exponents e_j
+#define k 36 // log2(W) / 2
+
+#define mu (1ULL << 31) // sqrt(W) / 2 = 2^31
+
+// d = p : proba to obtain a distinguished number
+// p = log2(W) / sqrt(W) = 32/2^32 = 2^5 / 2^32 = 2^(5-32) = 1/2^27
+#define q (1ULL << 26) // q = 1/p
+
 /**
  * https://ece.uwaterloo.ca/~p24gill/Projects/Cryptography/Pollard's_Rho_and_Lambda/Pollard's_Lambda_Method.html
  * https://ece.uwaterloo.ca/~p24gill/Projects/Cryptography/Pollard's_Rho_and_Lambda/Project.pdf
@@ -74,9 +88,9 @@ num128 gexp(uint64_t x) { return fast_exp(4398046511104, x); }
 /**
  * @brief test the gexp function
  *
- * @return int, 1 if equals, 0 otherwise
+ * @return bool, true if equals, false otherwise
  */
-int test_gexp(void) {
+bool test_gexp(void) {
 	num128 expected;
 	num128 result;
 	uint64_t x;
@@ -118,12 +132,6 @@ bool is_equal(num128 result, num128 expected) {
 	return result.s == expected.s;
 }
 
-uint64_t get_exponent_for_subset(uint64_t *ej, uint64_t k, num128 x) {
-	// TODO : subsets S_j => x % k
-	uint64_t i = (x.t[0] % k);
-	return ej[i];
-}
-
 /*void fill_exponents(uint64_t *ej, uint64_t k, uint64_t mu) {
 	// Initialize the random generator with a custom seed
 	uint64_t seed[4] = {2, 0, 2, 1};
@@ -137,117 +145,233 @@ uint64_t get_exponent_for_subset(uint64_t *ej, uint64_t k, num128 x) {
 	ej[k-1] = residue;
 }*/
 
-void fill_exponents(uint64_t *ej, uint64_t k, uint64_t mu) {
+/**
+ * @brief Pick k exponents e_j s.t. their average 1/k * Sum(e_j) equal µ.
+ * Fill the given arrays
+ *
+ * @param ej, array for the k exponents 2^j, j in [0, k-1]
+ * @param gexpej, array for the result of g^e_j for each exponent e_j
+ * @return int, 1 if equals, 0 otherwise
+ */
+void fill_exponents(uint64_t *ej, num128 *gexpej) {
 	uint64_t sum = 0;
-	for (uint64_t j = 0; j < k; j++) {
-		ej[j] = (uint64_t)(1) << j;
+	for (uint64_t j = 0; j < k - 1; j++) {
+		ej[j] = ((uint64_t)(1) << j);
+		gexpej[j] = gexp(ej[j]);
 		sum += ej[j];
-		printf("%ld-", ej[j]);
 	}
-	printf("sum %ld, %ld\n", sum, ((1 << k) - 1) / k);
-	printf("mu %ld\n", mu);
+	ej[k - 1] = mu * k - sum;
+	gexpej[k - 1] = gexp(ej[k - 1]);
 }
 
-bool is_distinguished(num128 x, double p) {
-	// printf("%lf\n", p);
-	// printf("%ld\n", (uint64_t) (p * pow(2, 64)));
-	if (x.t[0] % ((uint64_t)(1 / p)) == 0) {
-		printf("distinct");
-	}
-	return x.t[0] < p * pow(2, 64);
+/**
+ * @brief determine the subset S_j in which the variable x is, and provide the
+ * exponent ej and g^ej associated to this subset
+ *
+ * @param ej, array of the exponents ej associated to the subsets S_j
+ * @param gexpej, array of g^ej
+ * @param x
+ * @param gej, ptr to the variable that will be set to g^ej
+ * @return the exponent ej
+ */
+uint64_t get_exponent_for_subset(uint64_t *ej, num128 *gexpej, num128 x,
+								 num128 *gej) {
+	uint64_t j = (x.t[0] % k);
+	*gej = gexpej[j];
+	return ej[j];
 }
 
-void add_trap(trap *traps_list, num128 x, uint64_t exponent) {
+/**
+ * @brief Define the distinguisher D : G → {0, 1} so that Pr[D(x) = 1 : x <<- G]
+ * = p = 1/q
+ *
+ * @param x
+ * @return bool, true if x is a distinguished element, false otherwise
+ */
+bool is_distinguished(num128 x) { return (x.t[0] % q) == 0; }
+
+/**
+ * @brief Add a trap (x, exponent) in the traps_list of a kangaroo
+ *
+ * @param traps_list, ptr to the traps list of the kangaroo
+ * @param x, where to lay the trap
+ * @param exponent, the exponent that allows to the kangaroo to land on x
+ */
+void add_trap(trap **traps_list, num128 x, uint64_t exponent) {
 	trap *xi = NULL;
-	HASH_FIND(hh, traps_list, &x.s, sizeof(uint128_t), xi);
+	HASH_FIND(hh, *traps_list, &x, sizeof(num128), xi);
 	if (xi == NULL) {
 		xi = new_trap(x, exponent);
-		HASH_ADD(hh, traps_list, x, sizeof(uint128_t), xi);
+		HASH_ADD(hh, *traps_list, x, sizeof(num128), xi);
 	}
 }
 
-void jump(uint64_t *ej, uint64_t k, double p, num128 *x,
-		  uint64_t *last_exponent, trap *traps_list, trap *verify_traps_list,
-		  trap *element_trap) {
-	uint64_t exponent = get_exponent_for_subset(ej, k, *x);
+/**
+ * @brief Jump of a kangaroo. If the kangaroo lands on a distinguished element
+ * x, it lays a trap. However, if a trap is already present, it instead gets
+ * trapped and provide this trap in element_trap. Update the param of the jump
+ * of the kangaroo (position x, last_exponent).
+ *
+ * @param ej, array of the exponents ej associated to the subsets S_j
+ * @param gexpej, array of g^ej
+ * @param x, where the kangaroo land before the jump. Will be replace by the new
+ * position of the kangaroo
+ * @param last_exponent, sum of all the exponent used to jump
+ * @param traps_list, ptr to the traps list of the kangaroo
+ * @param verify_traps_list, traps list of the trap layed by another kangaroo
+ * @param element_trap, containt the trap if the kangaroo gets trapped
+ */
+void jump(uint64_t *ej, num128 *gexpej, num128 *x, uint64_t *last_exponent,
+		  trap **traps_list, trap *verify_traps_list, trap **element_trap) {
 
-	*x = mul11585(*x, gexp(exponent));
+	num128 gej;
+	uint64_t exponent = get_exponent_for_subset(ej, gexpej, *x, &gej);
 
+	*x = mul11585(*x, gej);
 	(*last_exponent) += exponent;
 
-	if (is_distinguished(*x, p)) {
+	if (is_distinguished(*x)) {
 		add_trap(traps_list, *x, *last_exponent);
-		HASH_FIND(hh, verify_traps_list, &x->s, sizeof(uint128_t),
-				  element_trap);
+		HASH_FIND(hh, verify_traps_list, x, sizeof(num128), *element_trap);
 	}
 }
 
-// Q4 : specify suitable values for k, µ, d, W
-// k : number of subsets of G, number of exponents e_j
-// d = p : proba to obtain a distinguished number
-// W : size of the interval
-// and how to pick the exponents e_i, the sets S_i and D
+/**
+ * @brief Solves the stated discrete logarithm problem using the kangaroo method
+ *
+ * @param target, discrete log to solve
+ * @return result num128, result.t[1] = 1 if it failed to resolve the problem, 0
+ * if it success with t[0]=the solution
+ */
 num128 dlog64(num128 target) {
-	// num128 result;
-	double W = pow(2, 64);
-	// According to the heuristic analysis
-	uint64_t k = (uint64_t)log2(W) / 2 - 1; // = 31
-	uint64_t mu = (uint64_t)sqrt(W) / 2;
-	double p = log2(W) / sqrt(W);
+	num128 result = {.t = {0, 0}};
 
 	// Pick k exponents e_j s.T. their average 1/k * Sum(e_j) from j=1 to k ~= µ
 	uint64_t ej[k];
-	fill_exponents(ej, k, mu);
+	num128 gexpej[k];
+	fill_exponents(ej, gexpej);
 
 	trap *xi_traps = NULL; /* important! initialize to NULL */
 	trap *yi_traps = NULL; /* important! initialize to NULL */
 	trap *element_trap = NULL;
+	trap *element_trap_y = NULL;
 
 	// Initialisation of the tame kangaroo's sequences
-	num128 x = gexp((uint64_t)W / 2);
-	printf("x = g^W/2");
-	print_num128(x);
-	uint64_t b_exponent = (uint64_t)W / 2;
-	if (is_distinguished(x, p))
-		add_trap(xi_traps, x, b_exponent);
+	uint64_t b_exponent = 1ULL << 63; // W / 2 = 2^63
+	num128 x = gexp(b_exponent);
+	if (is_distinguished(x))
+		add_trap(&xi_traps, x, b_exponent);
 
 	// Initialisation of the wild kangaroo's sequences
 	num128 y = target;
 	uint64_t c_exponent = (uint64_t)0;
-	if (is_distinguished(y, p))
-		add_trap(yi_traps, y, c_exponent);
+	if (is_distinguished(y))
+		add_trap(&yi_traps, y, c_exponent);
 
 	time_t endwait;
 	time_t start = time(NULL);
 	time_t seconds = 60 * 10; // end loop after 10 minutes
-
 	endwait = start + seconds;
 
 	printf("start time is : %s", ctime(&start));
+	uint64_t round = 0;
 
-	while ((start < endwait) && element_trap == NULL) {
-		jump(ej, k, p, &x, &b_exponent, xi_traps, yi_traps,
-			 element_trap); // Compute a new xi
-		if (element_trap != NULL) {
-			printf("exp %ld", b_exponent - element_trap->exponent);
-		} else {
-			jump(ej, k, p, &y, &c_exponent, yi_traps, xi_traps,
-				 element_trap); // Compute a new yi
-			if (element_trap != NULL)
-				printf("exp %ld", c_exponent - element_trap->exponent);
-		}
+	// Jumps of the kangaroo until the time was over or one the kangaroo is
+	// trapped
+	while (element_trap == NULL && element_trap_y == NULL &&
+		   (start < endwait)) {
+		// Compute a new xi (for the tame kangaroo)
+		jump(ej, gexpej, &x, &b_exponent, &xi_traps, yi_traps, &element_trap);
+		// Compute a new yi (for the wild kangaroo)
+		jump(ej, gexpej, &y, &c_exponent, &yi_traps, xi_traps, &element_trap_y);
+
+		start = time(NULL);
+		round++;
 	}
 
 	printf("end time is : %s", ctime(&start));
-	if (element_trap != NULL) {
+	printf("\nNb de tour de boucle :%lx\n", round);
+
+	// Get the result of the discrete logarithm problem if found
+	if (element_trap != NULL || element_trap_y != NULL) {
 		printf("TRAPPED !!!\n");
+		if (element_trap_y != NULL) {
+			if (c_exponent > element_trap_y->exponent) {
+				result.t[0] = c_exponent - element_trap_y->exponent;
+			} else {
+				result.t[0] = element_trap_y->exponent - c_exponent;
+			}
+		} else {
+			if (b_exponent > element_trap->exponent) {
+				result.t[0] = b_exponent - element_trap->exponent;
+			} else {
+				result.t[0] = element_trap->exponent - b_exponent;
+			}
+		}
 	} else {
 		printf("ECHEC :(");
+		result.t[1] = 1;
 	}
 
+	// Free the structures
 	delete_all(xi_traps);
 	delete_all(yi_traps);
-	return target;
+
+	return result;
+}
+
+/**
+ * @brief test that the average of the exponent is mu
+ *
+ * @return bool, true if equals, false otherwise
+ */
+bool test_fill_exponents(void) {
+	// Pick k exponents e_j
+	uint64_t ej[k];
+	num128 gexpej[k];
+	fill_exponents(ej, gexpej);
+
+	uint64_t sum = 0;
+	for (uint64_t j = 0; j < k; j++) {
+		sum += ej[j];
+		if (ej[j] == 0) {
+			printf("Coef %lu nul\n", j);
+			exit(0);
+		}
+	}
+
+	return sum / k == mu;
+}
+
+void verify_trap(void) {
+	// When the target is x_1, we got trapped
+
+	num128 gej;
+	uint64_t ej[k];
+	num128 gexpej[k];
+	fill_exponents(ej, gexpej);
+	uint64_t b_exponent = 1ULL << 63; // W / 2 = 2^63
+	num128 x = gexp(b_exponent);
+	get_exponent_for_subset(ej, gexpej, x, &gej);
+
+	num128 new_x = mul11585(x, gej);
+	print_num128(new_x);
+	dlog64(new_x);
+}
+
+/**
+ * @brief test the dlog64 function
+ *
+ * @return bool, true if equals, false otherwise
+ */
+bool test_dlog64(void) {
+	num128 target = {.t = {0xB6263BF2908A7B09ULL, 0x71AC72AF7B138ULL}};
+	num128 result = dlog64(target);
+	if (result.t[1] != 0) {
+		printf("NOT FOUND");
+		return false;
+	}
+	return is_equal(target, gexp(result.t[0]));
 }
 
 int main(int argc, char **argv) {
@@ -255,8 +379,7 @@ int main(int argc, char **argv) {
 	(void)argv;
 
 	printf("---Preparatory work---\n");
-	bool err = test_gexp();
-	printf("Test gexp is correct: %s\n\n", err ? "true" : "false");
+	printf("Test gexp is correct: %s\n\n", test_gexp() ? "true" : "false");
 
 	printf("---Implementing kangaroos---\n");
 	num128 target = {.t = {0xB6263BF2908A7B09ULL, 0x71AC72AF7B138ULL}};
@@ -269,10 +392,10 @@ int main(int argc, char **argv) {
 	// recommended: log2(2^64) / 2 = 32,
 	// recommended closer to mu: log2(sqrt(2^64)) + log2(log2(sqrt(2^64))) - 1 =
 	// 32 + 5 - 1 = 36
-	uint8_t k = 36;
+	// uint8_t k = 36;
 	// mu
 	// sqrt(2^64) / 2
-	uint64_t mu = 1UL << 31;
+	// uint64_t mu = 1UL << 31;
 
 	uint64_t jump_size = next_jump_size(&target, k);
 	printf("%lu\n", jump_size);
@@ -287,7 +410,7 @@ int main(int argc, char **argv) {
 	}
 	printf("mu : %lu\n", mu);
 	printf("Mean of the exponents : %lu\n", sum / k);
-	printf("Difference |mu - mean| : %lu\n",
+	printf("Difference |mu - mean| : %llu\n",
 		   mu > sum / k ? mu - sum / k : sum / k - mu);
 	// Choosing the exponents in the set of jumps as powers of two works fine in
 	// principal in the sense that the theoretically predicted running times are
