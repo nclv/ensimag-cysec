@@ -16,7 +16,7 @@
 // W = 2^64
 
 // k : number of subsets of G, number of exponents e_j
-#define k 32 // log2(W) / 2
+#define k 36 // log2(W) / 2
 
 #define mu (1ULL << 31) // sqrt(W) / 2 = 2^31
 
@@ -298,7 +298,7 @@ num128 dlog64(num128 target) {
 	trap *element_trap_y = NULL;
 
 	// Initialisation of the tame kangaroo's sequences
-	uint64_t b_exponent = 1ULL << 63; // W / 2 = 2^63
+	uint64_t b_exponent = 1ULL << 32; // W / 2 = 2^63
 	num128 x = gexp(b_exponent);
 	if (is_distinguished(x))
 		add_trap(&xi_traps, x, b_exponent);
