@@ -4,6 +4,7 @@
 #ifndef __MUL11585_H
 #define __MUL11585_H
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -17,5 +18,6 @@ typedef union {
 
 num128 mul11585(num128 a, num128 b);
 void print_num128(num128 a);
+bool is_equal(num128 result, num128 expected);
 
 #endif // __MUL11585_H
