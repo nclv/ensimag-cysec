@@ -16,7 +16,7 @@
 // W = 2^64
 
 // k : number of subsets of G, number of exponents e_j
-#define k 36 // log2(W) / 2
+#define k 32 // log2(W) / 2
 
 #define mu (1ULL << 31) // sqrt(W) / 2 = 2^31
 
@@ -146,6 +146,32 @@ void generate_bad_random_exponents(uint64_t *exponents, num128 *g_power_exponent
 	g_power_exponents[k - 1] = gexp(residue);
 }
 
+
+/**
+ * @brief generate random exponents without any constraint on their mean value.
+ * Fill the arrays of exponents and g^exponents.
+ *
+ * @param exponents, array for the k exponents, µ - std or µ + std
+ * @param g_power_exponents, array for the result of g^e_j for each exponent e_j
+ * @param std standard deviation
+ */
+void generate_random_exponents(uint64_t *exponents, num128 *g_power_exponents) {
+	uint64_t sum = 0;
+	uint64_t exponent = 0;
+	for (size_t j = 0; j < k; ++j) {
+		exponent = (uint64_t) rand() % (2 * mu);
+
+		exponents[j] = exponent;
+		g_power_exponents[j] = gexp(exponent);
+
+		sum += exponents[j];
+	}
+
+	uint64_t residue = mu * k - sum;
+	exponents[k - 1] = residue;
+	g_power_exponents[k - 1] = gexp(residue);
+}
+
 /**
  * @brief generate a random distribution with mean µ.
  * Fill the arrays of exponents and g^exponents.
@@ -158,7 +184,7 @@ void generate_powers_of_two_exponents(uint64_t *exponents,
 	uint64_t sum = 0;
 	uint64_t exponent = 0;
 	for (size_t j = 0; j < k; ++j) {
-		exponent = (uint64_t)(1 << j);
+		exponent = (uint64_t)(1ULL << j);
 
 		exponents[j] = exponent;
 		g_power_exponents[j] = gexp(exponent);
@@ -407,7 +433,10 @@ int main(int argc, char **argv) {
 	num128 g_power_exponents[k];
 	generate_powers_of_two_exponents(exponents, g_power_exponents);
 
-	generate_bad_random_exponents(exponents, g_power_exponents, (1ULL << 15));
+	// generate_bad_random_exponents(exponents, g_power_exponents, mu + 12345);
+	// test_fill_exponents(exponents);
+
+	generate_random_exponents(exponents, g_power_exponents);
 	test_fill_exponents(exponents);
 
 	printf("---Preparatory work---\n");
@@ -417,48 +446,6 @@ int main(int argc, char **argv) {
 	test_fill_exponents(exponents);
 
 	printf("Test dlog64 is correct: %s\n\n", test_dlog64() ? "true" : "false");
-
-	// verify_trap();
-
-	// max of uint64_t (8 bytes unsigned) is 2^64 - 1
-	// see https://stackoverflow.com/a/67559486 for issues with log2
-
-	// k
-	// recommended: log2(2^64) / 2 = 32,
-	// recommended closer to mu: log2(sqrt(2^64)) + log2(log2(sqrt(2^64))) - 1 =
-	// 32 + 5 - 1 = 36
-	// uint8_t k = 36;
-	// mu
-	// sqrt(2^64) / 2
-	// uint64_t mu = 1UL << 31;
-
-	// uint64_t jump_size = next_jump_size(&target, k);
-	// printf("%lu\n", jump_size);
-
-	// generate k powers of two
-	// uint64_t powers_of_two[k];
-	// generate_powers_of_two(powers_of_two, k);
-
-	// uint64_t sum = 0;
-	// for (size_t i = 0; i < k; ++i) {
-	// 	sum += powers_of_two[i];
-	// }
-	// printf("mu : %llu\n", mu);
-	// printf("Mean of the exponents : %lu\n", sum / k);
-	// printf("Difference |mu - mean| : %llu\n",
-	// 	   mu > sum / k ? mu - sum / k : sum / k - mu);
-	// Choosing the exponents in the set of jumps as powers of two works fine in
-	// principal in the sense that the theoretically predicted running times are
-	// almost met. Choosing the exponents uniformly at random from the interval
-	// [0, 2μ] (μ denoting the theoretically optimal mean value of the si)
-	// yielded even slightly better results.
-
-	// Initialize the random generator with a custom seed
-	// uint64_t seed[4] = {2, 0, 2, 1};
-	// xoshiro256starstar_random_set(seed);
-
-	// lambda_method();
-	// lambda_method_simultaneous();
 
 	return 0;
 }
