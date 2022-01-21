@@ -1,0 +1,166 @@
+==319894== Memcheck, a memory error detector
+==319894== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==319894== Using Valgrind-3.16.1-36d6727e1d-20200622X and LibVEX; rerun with -h for copyright info
+==319894== Command: ./bin/kangaroos
+==319894== Parent PID: 206772
+==319894== 
+--319894-- 
+--319894-- Valgrind options:
+--319894--    --leak-check=full
+--319894--    --show-leak-kinds=all
+--319894--    --track-origins=yes
+--319894--    --verbose
+--319894--    --log-file=valgrind-out.txt
+--319894-- Contents of /proc/version:
+--319894--   Linux version 5.14.0-9parrot1-amd64 (team@parrotsec.org) (gcc-10 (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2) #1 SMP Debian 5.14.9-9parrot1 (2021-10-26)
+--319894-- 
+--319894-- Arch and hwcaps: AMD64, LittleEndian, amd64-cx16-lzcnt-rdtscp-sse3-ssse3-avx-avx2-bmi-f16c-rdrand
+--319894-- Page sizes: currently 4096, max supported 4096
+--319894-- Valgrind library directory: /usr/lib/x86_64-linux-gnu/valgrind
+--319894-- Reading syms from /home/nicolas/Documents/Projets/ensimag-cysec/cryptographic/tp_kangaroos/bin/kangaroos
+--319894-- Reading syms from /usr/lib/x86_64-linux-gnu/ld-2.31.so
+--319894--   Considering /usr/lib/debug/.build-id/32/438eb3b034da54caf58c7a65446639f7cfe274.debug ..
+--319894--   .. build-id is valid
+--319894-- Reading syms from /usr/lib/x86_64-linux-gnu/valgrind/memcheck-amd64-linux
+--319894--   Considering /usr/lib/debug/.build-id/54/299c4aec0e5e5f3d7b8135341351d0e1dbfc64.debug ..
+--319894--   .. build-id is valid
+--319894--    object doesn't have a dynamic symbol table
+--319894-- Scheduler: using generic scheduler lock implementation.
+--319894-- Reading suppressions file: /usr/lib/x86_64-linux-gnu/valgrind/default.supp
+==319894== embedded gdbserver: reading from /tmp/user/1000/vgdb-pipe-from-vgdb-to-319894-by-nicolas-on-???
+==319894== embedded gdbserver: writing to   /tmp/user/1000/vgdb-pipe-to-vgdb-from-319894-by-nicolas-on-???
+==319894== embedded gdbserver: shared mem   /tmp/user/1000/vgdb-pipe-shared-mem-vgdb-319894-by-nicolas-on-???
+==319894== 
+==319894== TO CONTROL THIS PROCESS USING vgdb (which you probably
+==319894== don't want to do, unless you know exactly what you're doing,
+==319894== or are doing some strange experiment):
+==319894==   /usr/bin/vgdb --pid=319894 ...command...
+==319894== 
+==319894== TO DEBUG THIS PROCESS USING GDB: start GDB like this
+==319894==   /path/to/gdb ./bin/kangaroos
+==319894== and then give GDB the following command
+==319894==   target remote | /usr/bin/vgdb --pid=319894
+==319894== --pid is optional if only one valgrind process is running
+==319894== 
+--319894-- REDIR: 0x401f970 (ld-linux-x86-64.so.2:strlen) redirected to 0x580ca5f2 (vgPlain_amd64_linux_REDIR_FOR_strlen)
+--319894-- REDIR: 0x401f750 (ld-linux-x86-64.so.2:index) redirected to 0x580ca60c (vgPlain_amd64_linux_REDIR_FOR_index)
+--319894-- Reading syms from /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_core-amd64-linux.so
+--319894--   Considering /usr/lib/debug/.build-id/f2/7641e081d3c37b410d7f31da4e2bf21040f356.debug ..
+--319894--   .. build-id is valid
+--319894-- Reading syms from /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so
+--319894--   Considering /usr/lib/debug/.build-id/25/7cdcdf80e04f91ca9e3b185ee3b52995e89946.debug ..
+--319894--   .. build-id is valid
+==319894== WARNING: new redirection conflicts with existing -- ignoring it
+--319894--     old: 0x0401f970 (strlen              ) R-> (0000.0) 0x580ca5f2 vgPlain_amd64_linux_REDIR_FOR_strlen
+--319894--     new: 0x0401f970 (strlen              ) R-> (2007.0) 0x0483bda0 strlen
+--319894-- REDIR: 0x401c190 (ld-linux-x86-64.so.2:strcmp) redirected to 0x483cc90 (strcmp)
+--319894-- REDIR: 0x401feb0 (ld-linux-x86-64.so.2:mempcpy) redirected to 0x4840740 (mempcpy)
+--319894-- Reading syms from /usr/lib/x86_64-linux-gnu/libc-2.31.so
+--319894--   Considering /usr/lib/debug/.build-id/54/eef5ce96cf37cb175b0d93186836ca1caf470c.debug ..
+--319894--   .. build-id is valid
+--319894-- REDIR: 0x4907ea0 (libc.so.6:memmove) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4907250 (libc.so.6:strncpy) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x49081c0 (libc.so.6:strcasecmp) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4906b70 (libc.so.6:strcat) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x49072b0 (libc.so.6:rindex) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4909550 (libc.so.6:rawmemchr) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4921710 (libc.so.6:wmemchr) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x49212b0 (libc.so.6:wcscmp) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4908000 (libc.so.6:mempcpy) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4907e30 (libc.so.6:bcmp) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x49071f0 (libc.so.6:strncmp) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4906c20 (libc.so.6:strcmp) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4907f60 (libc.so.6:memset) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4921270 (libc.so.6:wcschr) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4907150 (libc.so.6:strnlen) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4906cf0 (libc.so.6:strcspn) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4908210 (libc.so.6:strncasecmp) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4906c90 (libc.so.6:strcpy) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4908360 (libc.so.6:memcpy@@GLIBC_2.14) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4922910 (libc.so.6:wcsnlen) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x49212f0 (libc.so.6:wcscpy) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x49072f0 (libc.so.6:strpbrk) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4906bd0 (libc.so.6:index) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4907110 (libc.so.6:strlen) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x490d8b0 (libc.so.6:memrchr) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4908260 (libc.so.6:strcasecmp_l) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4907df0 (libc.so.6:memchr) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4921390 (libc.so.6:wcslen) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4907590 (libc.so.6:strspn) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4908160 (libc.so.6:stpncpy) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4908100 (libc.so.6:stpcpy) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x4909590 (libc.so.6:strchrnul) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x49082b0 (libc.so.6:strncasecmp_l) redirected to 0x482e1b0 (_vgnU_ifunc_wrapper)
+--319894-- REDIR: 0x49d88f0 (libc.so.6:__strrchr_avx2) redirected to 0x483b7b0 (rindex)
+--319894-- REDIR: 0x49d8ac0 (libc.so.6:__strlen_avx2) redirected to 0x483bc80 (strlen)
+--319894-- REDIR: 0x49030f0 (libc.so.6:malloc) redirected to 0x4838710 (malloc)
+--319894-- REDIR: 0x49d8700 (libc.so.6:__strchrnul_avx2) redirected to 0x48402b0 (strchrnul)
+--319894-- REDIR: 0x49dba90 (libc.so.6:__mempcpy_avx_unaligned_erms) redirected to 0x48403c0 (mempcpy)
+--319894-- REDIR: 0x4907a30 (libc.so.6:__GI_strstr) redirected to 0x4840990 (__strstr_sse2)
+--319894-- REDIR: 0x49dbab0 (libc.so.6:__memcpy_avx_unaligned_erms) redirected to 0x483f760 (memmove)
+--319894-- REDIR: 0x4903720 (libc.so.6:free) redirected to 0x4839940 (free)
+--319894-- REDIR: 0x4903e50 (libc.so.6:calloc) redirected to 0x483aab0 (calloc)
+==319894== Invalid read of size 8
+==319894==    at 0x10A493: print_hash_entry (lambda.c:49)
+==319894==    by 0x10A493: lambda_method (lambda.c:200)
+==319894==    by 0x1092AF: main (kangaroos.c:295)
+==319894==  Address 0x0 is not stack'd, malloc'd or (recently) free'd
+==319894== 
+==319894== 
+==319894== Process terminating with default action of signal 11 (SIGSEGV)
+==319894==  Access not within mapped region at address 0x0
+==319894==    at 0x10A493: print_hash_entry (lambda.c:49)
+==319894==    by 0x10A493: lambda_method (lambda.c:200)
+==319894==    by 0x1092AF: main (kangaroos.c:295)
+==319894==  If you believe this happened as a result of a stack
+==319894==  overflow in your program's main thread (unlikely but
+==319894==  possible), you can try to increase the size of the
+==319894==  main thread stack using the --main-stacksize= flag.
+==319894==  The main thread stack size used in this run was 8388608.
+==319894== 
+==319894== HEAP SUMMARY:
+==319894==     in use at exit: 3,536 bytes in 39 blocks
+==319894==   total heap usage: 42 allocs, 3 frees, 9,128 bytes allocated
+==319894== 
+==319894== Searching for pointers to 39 not-freed blocks
+==319894== Checked 82,784 bytes
+==319894== 
+==319894== 64 bytes in 1 blocks are still reachable in loss record 1 of 4
+==319894==    at 0x483877F: malloc (vg_replace_malloc.c:307)
+==319894==    by 0x109D83: lambda_method (lambda.c:133)
+==319894==    by 0x1092AF: main (kangaroos.c:295)
+==319894== 
+==319894== 80 bytes in 1 blocks are still reachable in loss record 2 of 4
+==319894==    at 0x483877F: malloc (vg_replace_malloc.c:307)
+==319894==    by 0x109BA7: new_hash_entry (lambda.c:23)
+==319894==    by 0x109BA7: lambda_method (lambda.c:131)
+==319894==    by 0x1092AF: main (kangaroos.c:295)
+==319894== 
+==319894== 512 bytes in 1 blocks are still reachable in loss record 3 of 4
+==319894==    at 0x483AB65: calloc (vg_replace_malloc.c:760)
+==319894==    by 0x109DD1: lambda_method (lambda.c:133)
+==319894==    by 0x1092AF: main (kangaroos.c:295)
+==319894== 
+==319894== 2,880 bytes in 36 blocks are still reachable in loss record 4 of 4
+==319894==    at 0x483877F: malloc (vg_replace_malloc.c:307)
+==319894==    by 0x10A4D5: new_hash_entry (lambda.c:23)
+==319894==    by 0x10A4D5: lambda_method (lambda.c:148)
+==319894==    by 0x1092AF: main (kangaroos.c:295)
+==319894== 
+==319894== LEAK SUMMARY:
+==319894==    definitely lost: 0 bytes in 0 blocks
+==319894==    indirectly lost: 0 bytes in 0 blocks
+==319894==      possibly lost: 0 bytes in 0 blocks
+==319894==    still reachable: 3,536 bytes in 39 blocks
+==319894==         suppressed: 0 bytes in 0 blocks
+==319894== 
+==319894== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)
+==319894== 
+==319894== 1 errors in context 1 of 1:
+==319894== Invalid read of size 8
+==319894==    at 0x10A493: print_hash_entry (lambda.c:49)
+==319894==    by 0x10A493: lambda_method (lambda.c:200)
+==319894==    by 0x1092AF: main (kangaroos.c:295)
+==319894==  Address 0x0 is not stack'd, malloc'd or (recently) free'd
+==319894== 
+==319894== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)

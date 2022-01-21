@@ -1,3 +1,4 @@
+#include <bits/stdint-uintn.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -6,6 +7,7 @@
 
 #include "hash_table.h"
 #include "kangaroos.h"
+#include "lambda.h"
 #include "mul11585.h"
 #include "xoshiro256starstar.h"
 
@@ -258,6 +260,47 @@ int main(int argc, char **argv) {
 
 	printf("---Implementing kangaroos---\n");
 	num128 target = {.t = {0xB6263BF2908A7B09ULL, 0x71AC72AF7B138ULL}};
-	dlog64(target);
+	// dlog64(target);
+
+	// max of uint64_t (8 bytes unsigned) is 2^64 - 1
+	// see https://stackoverflow.com/a/67559486 for issues with log2
+
+	// k
+	// recommended: log2(2^64) / 2 = 32,
+	// recommended closer to mu: log2(sqrt(2^64)) + log2(log2(sqrt(2^64))) - 1 =
+	// 32 + 5 - 1 = 36
+	uint8_t k = 36;
+	// mu
+	// sqrt(2^64) / 2
+	uint64_t mu = 1UL << 31;
+
+	uint64_t jump_size = next_jump_size(&target, k);
+	printf("%lu\n", jump_size);
+
+	// generate k powers of two
+	uint64_t powers_of_two[k];
+	generate_powers_of_two(powers_of_two, k);
+
+	uint64_t sum = 0;
+	for (size_t i = 0; i < k; ++i) {
+		sum += powers_of_two[i];
+	}
+	printf("mu : %lu\n", mu);
+	printf("Mean of the exponents : %lu\n", sum / k);
+	printf("Difference |mu - mean| : %lu\n",
+		   mu > sum / k ? mu - sum / k : sum / k - mu);
+	// Choosing the exponents in the set of jumps as powers of two works fine in
+	// principal in the sense that the theoretically predicted running times are
+	// almost met. Choosing the exponents uniformly at random from the interval
+	// [0, 2μ] (μ denoting the theoretically optimal mean value of the si)
+	// yielded even slightly better results.
+
+	// Initialize the random generator with a custom seed
+	// uint64_t seed[4] = {2, 0, 2, 1};
+	// xoshiro256starstar_random_set(seed);
+
+	// lambda_method();
+	lambda_method_simultaneous();
+
 	return 0;
 }

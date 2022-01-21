@@ -36,6 +36,8 @@ Multiplication in a finite field is multiplication modulo an irreducible reducin
 
 ### Q6.
 
+See https://arxiv.org/pdf/1501.07019.pdf p.8-11
+
 
 
 ### Q7.
