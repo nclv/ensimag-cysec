@@ -32,7 +32,7 @@ obj/%.o: src/%.c
 	$(CC) -c $(CFLAGS) $< -o $@
 
 $(BINDIR)/kangaroos: $(OBJ_FILES)
-	$(LD) $(LDFLAGS) $(OBJ_FILES) -o $@
+	$(LD) $(LDFLAGS) $(OBJ_FILES) -lm -o $@
 
 binary: $(BINDIR)/kangaroos
 

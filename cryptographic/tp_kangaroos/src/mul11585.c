@@ -1,5 +1,7 @@
 #include "mul11585.h"
 
+#include <stdbool.h>
+
 static const num128 mod = {.t = {18446744073709551531ULL, 2251799813685247ULL}};
 static const num128 m115 = {
 	.t = {18446744073709551615ULL, 2251799813685247ULL}};
@@ -48,3 +50,15 @@ num128 mul11585(num128 a, num128 b) {
 }
 
 void print_num128(num128 a) { printf("%lX%016lX", a.t[1], a.t[0]); }
+
+/**
+ * @brief compare two num128 variables
+ *
+ * @param result
+ * @param expected
+ * @return bool, true if equal, false otherwise
+ */
+bool is_equal(num128 result, num128 expected) {
+	// or (result.t[0] == expected.t[0]) & (result.t[1] == expected.t[1]);
+	return result.s == expected.s;
+}

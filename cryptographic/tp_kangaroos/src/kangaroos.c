@@ -7,9 +7,8 @@
 
 #include "hash_table.h"
 #include "kangaroos.h"
-#include "lambda.h"
 #include "mul11585.h"
-#include "xoshiro256starstar.h"
+#include "utils.h"
 
 /* According to the heuristic analysis */
 
@@ -121,64 +120,77 @@ bool test_gexp(void) {
 }
 
 /**
- * @brief compare two num128 variables
+ * @brief generate a random distribution with mean µ and standard deviation std.
+ * We assume µ - std > 0. It may not be the best choice as µ + std can overflow.
+ * Fill the arrays of exponents and g^exponents.
  *
- * @param result
- * @param expected
- * @return bool, true if equal, false otherwise
+ * @param exponents, array for the k exponents, µ - std or µ + std
+ * @param g_power_exponents, array for the result of g^e_j for each exponent e_j
+ * @param std standard deviation
  */
-bool is_equal(num128 result, num128 expected) {
-	// or (result.t[0] == expected.t[0]) & (result.t[1] == expected.t[1]);
-	return result.s == expected.s;
+void generate_bad_random_exponents(uint64_t *exponents, num128 *g_power_exponents,
+							   uint64_t std) {
+	uint64_t sum = 0;
+	uint64_t exponent = 0;
+	for (size_t j = 0; j < k; ++j) {
+		exponent = (rand() % 2 == 0) ? mu - std : mu + std;
+
+		exponents[j] = exponent;
+		g_power_exponents[j] = gexp(exponent);
+
+		sum += exponents[j];
+	}
+
+	uint64_t residue = mu * k - sum;
+	exponents[k - 1] = residue;
+	g_power_exponents[k - 1] = gexp(residue);
 }
 
-/*void fill_exponents(uint64_t *ej, uint64_t k, uint64_t mu) {
-	// Initialize the random generator with a custom seed
-	uint64_t seed[4] = {2, 0, 2, 1};
-	xoshiro256starstar_random_set(seed);
-
-	uint64_t residue = k * mu;
-	for (uint64_t j = 0; j < k-1; j++) {
-		ej[j] = xoshiro256starstar_random()/(uint64_t) pow(2, 64) * (residue >>
-2); residue -= ej[j];
-	}
-	ej[k-1] = residue;
-}*/
-
 /**
- * @brief Pick k exponents e_j s.t. their average 1/k * Sum(e_j) equal µ.
- * Fill the given arrays
+ * @brief generate a random distribution with mean µ.
+ * Fill the arrays of exponents and g^exponents.
  *
- * @param ej, array for the k exponents 2^j, j in [0, k-1]
- * @param gexpej, array for the result of g^e_j for each exponent e_j
- * @return int, 1 if equals, 0 otherwise
+ * @param exponents, array for the k exponents 2^j, j in [0, k-1]
+ * @param g_power_exponents, array for the result of g^e_j for each exponent e_j
  */
-void fill_exponents(uint64_t *ej, num128 *gexpej) {
+void generate_powers_of_two_exponents(uint64_t *exponents,
+									  num128 *g_power_exponents) {
 	uint64_t sum = 0;
-	for (uint64_t j = 0; j < k - 1; j++) {
-		ej[j] = ((uint64_t)(1) << j);
-		gexpej[j] = gexp(ej[j]);
-		sum += ej[j];
+	uint64_t exponent = 0;
+	for (size_t j = 0; j < k; ++j) {
+		exponent = (uint64_t)(1 << j);
+
+		exponents[j] = exponent;
+		g_power_exponents[j] = gexp(exponent);
+
+		sum += exponents[j];
 	}
-	ej[k - 1] = mu * k - sum;
-	gexpej[k - 1] = gexp(ej[k - 1]);
+
+	uint64_t residue = mu * k - sum;
+	exponents[k - 1] = residue;
+	g_power_exponents[k - 1] = gexp(residue);
 }
 
 /**
  * @brief determine the subset S_j in which the variable x is, and provide the
- * exponent ej and g^ej associated to this subset
+ * exponent exponents and g^exponents associated to this subset
  *
- * @param ej, array of the exponents ej associated to the subsets S_j
- * @param gexpej, array of g^ej
+ * @param exponents, array of the exponents exponents associated to the subsets
+ * S_j
+ * @param g_power_exponents, array of g^exponents
  * @param x
- * @param gej, ptr to the variable that will be set to g^ej
+ * @param g_power_exponent, pointer to the variable that will be set to
+ * g^exponents
  * @return the exponent ej
  */
-uint64_t get_exponent_for_subset(uint64_t *ej, num128 *gexpej, num128 x,
-								 num128 *gej) {
-	uint64_t j = (x.t[0] % k);
-	*gej = gexpej[j];
-	return ej[j];
+uint64_t get_exponent_for_subset(uint64_t *exponents, num128 *g_power_exponents,
+								 num128 x, num128 *g_power_exponent) {
+	// unsigned hashv;
+	// HASH_FUNCTION(x, sizeof(*x), hashv);
+	uint64_t j = (x.t[0] % k); // hashv % k + 1;
+	*g_power_exponent = g_power_exponents[j];
+
+	return exponents[j];
 }
 
 /**
@@ -212,8 +224,9 @@ void add_trap(trap **traps_list, num128 x, uint64_t exponent) {
  * trapped and provide this trap in element_trap. Update the param of the jump
  * of the kangaroo (position x, last_exponent).
  *
- * @param ej, array of the exponents ej associated to the subsets S_j
- * @param gexpej, array of g^ej
+ * @param exponents, array of the exponents exponents associated to the subsets
+ * S_j
+ * @param g_power_exponents, array of g^exponents
  * @param x, where the kangaroo land before the jump. Will be replace by the new
  * position of the kangaroo
  * @param last_exponent, sum of all the exponent used to jump
@@ -221,13 +234,15 @@ void add_trap(trap **traps_list, num128 x, uint64_t exponent) {
  * @param verify_traps_list, traps list of the trap layed by another kangaroo
  * @param element_trap, containt the trap if the kangaroo gets trapped
  */
-void jump(uint64_t *ej, num128 *gexpej, num128 *x, uint64_t *last_exponent,
-		  trap **traps_list, trap *verify_traps_list, trap **element_trap) {
+void jump(uint64_t *exponents, num128 *g_power_exponents, num128 *x,
+		  uint64_t *last_exponent, trap **traps_list, trap *verify_traps_list,
+		  trap **element_trap) {
 
-	num128 gej;
-	uint64_t exponent = get_exponent_for_subset(ej, gexpej, *x, &gej);
+	num128 g_power_exponent;
+	uint64_t exponent = get_exponent_for_subset(exponents, g_power_exponents,
+												*x, &g_power_exponent);
 
-	*x = mul11585(*x, gej);
+	*x = mul11585(*x, g_power_exponent);
 	(*last_exponent) += exponent;
 
 	if (is_distinguished(*x)) {
@@ -241,15 +256,15 @@ void jump(uint64_t *ej, num128 *gexpej, num128 *x, uint64_t *last_exponent,
  *
  * @param target, discrete log to solve
  * @return result num128, result.t[1] = 1 if it failed to resolve the problem, 0
- * if it success with t[0]=the solution
+ * if it success with t[0] the solution.
  */
 num128 dlog64(num128 target) {
 	num128 result = {.t = {0, 0}};
 
 	// Pick k exponents e_j s.T. their average 1/k * Sum(e_j) from j=1 to k ~= µ
-	uint64_t ej[k];
-	num128 gexpej[k];
-	fill_exponents(ej, gexpej);
+	uint64_t exponents[k];
+	num128 g_power_exponents[k];
+	generate_powers_of_two_exponents(exponents, g_power_exponents);
 
 	trap *xi_traps = NULL; /* important! initialize to NULL */
 	trap *yi_traps = NULL; /* important! initialize to NULL */
@@ -281,9 +296,11 @@ num128 dlog64(num128 target) {
 	while (element_trap == NULL && element_trap_y == NULL &&
 		   (start < endwait)) {
 		// Compute a new xi (for the tame kangaroo)
-		jump(ej, gexpej, &x, &b_exponent, &xi_traps, yi_traps, &element_trap);
+		jump(exponents, g_power_exponents, &x, &b_exponent, &xi_traps, yi_traps,
+			 &element_trap);
 		// Compute a new yi (for the wild kangaroo)
-		jump(ej, gexpej, &y, &c_exponent, &yi_traps, xi_traps, &element_trap_y);
+		jump(exponents, g_power_exponents, &y, &c_exponent, &yi_traps, xi_traps,
+			 &element_trap_y);
 
 		start = time(NULL);
 		round++;
@@ -321,56 +338,64 @@ num128 dlog64(num128 target) {
 }
 
 /**
- * @brief test that the average of the exponent is mu
+ * @brief
  *
- * @return bool, true if equals, false otherwise
  */
-bool test_fill_exponents(void) {
-	// Pick k exponents e_j
-	uint64_t ej[k];
-	num128 gexpej[k];
-	fill_exponents(ej, gexpej);
-
-	uint64_t sum = 0;
-	for (uint64_t j = 0; j < k; j++) {
-		sum += ej[j];
-		if (ej[j] == 0) {
-			printf("Coef %lu nul\n", j);
-			exit(0);
-		}
-	}
-
-	return sum / k == mu;
-}
-
 void verify_trap(void) {
 	// When the target is x_1, we got trapped
 
-	num128 gej;
-	uint64_t ej[k];
-	num128 gexpej[k];
-	fill_exponents(ej, gexpej);
+	uint64_t exponents[k];
+	num128 g_power_exponents[k];
+	generate_powers_of_two_exponents(exponents, g_power_exponents);
+
+	num128 g_power_exponent;
+
 	uint64_t b_exponent = 1ULL << 63; // W / 2 = 2^63
 	num128 x = gexp(b_exponent);
-	get_exponent_for_subset(ej, gexpej, x, &gej);
+	
+	get_exponent_for_subset(exponents, g_power_exponents, x, &g_power_exponent);
 
-	num128 new_x = mul11585(x, gej);
+	num128 new_x = mul11585(x, g_power_exponent);
 	print_num128(new_x);
+	
 	dlog64(new_x);
 }
 
 /**
- * @brief test the dlog64 function
+ * @brief test that the average of the exponent is mu
+ *
+ * @return bool, true if equals, false otherwise
+ */
+int test_fill_exponents(uint64_t *exponents) {
+	uint64_t sum = 0;
+	for (uint64_t j = 0; j < k; j++) {
+		sum += exponents[j];
+	}
+
+	printf("mu : %llu\n", mu);
+	printf("Mean of the exponents : %lu\n", sum / k);
+	printf("Difference |mu - mean| : %llu\n",
+		   mu > sum / k ? mu - sum / k : sum / k - mu);
+
+	return 0;
+}
+
+/**
+ * @brief test the dlog64 function by computing the discrete logarithm of
+ * the element represented by 0x71AC72AF7B138B6263BF2908A7B09.
  *
  * @return bool, true if equals, false otherwise
  */
 bool test_dlog64(void) {
 	num128 target = {.t = {0xB6263BF2908A7B09ULL, 0x71AC72AF7B138ULL}};
+
 	num128 result = dlog64(target);
 	if (result.t[1] != 0) {
 		printf("NOT FOUND");
+
 		return false;
 	}
+
 	return is_equal(target, gexp(result.t[0]));
 }
 
@@ -378,12 +403,22 @@ int main(int argc, char **argv) {
 	(void)argc;
 	(void)argv;
 
+	uint64_t exponents[k];
+	num128 g_power_exponents[k];
+	generate_powers_of_two_exponents(exponents, g_power_exponents);
+
+	generate_bad_random_exponents(exponents, g_power_exponents, (1ULL << 15));
+	test_fill_exponents(exponents);
+
 	printf("---Preparatory work---\n");
 	printf("Test gexp is correct: %s\n\n", test_gexp() ? "true" : "false");
 
 	printf("---Implementing kangaroos---\n");
-	num128 target = {.t = {0xB6263BF2908A7B09ULL, 0x71AC72AF7B138ULL}};
-	// dlog64(target);
+	test_fill_exponents(exponents);
+
+	printf("Test dlog64 is correct: %s\n\n", test_dlog64() ? "true" : "false");
+
+	// verify_trap();
 
 	// max of uint64_t (8 bytes unsigned) is 2^64 - 1
 	// see https://stackoverflow.com/a/67559486 for issues with log2
@@ -397,21 +432,21 @@ int main(int argc, char **argv) {
 	// sqrt(2^64) / 2
 	// uint64_t mu = 1UL << 31;
 
-	uint64_t jump_size = next_jump_size(&target, k);
-	printf("%lu\n", jump_size);
+	// uint64_t jump_size = next_jump_size(&target, k);
+	// printf("%lu\n", jump_size);
 
 	// generate k powers of two
-	uint64_t powers_of_two[k];
-	generate_powers_of_two(powers_of_two, k);
+	// uint64_t powers_of_two[k];
+	// generate_powers_of_two(powers_of_two, k);
 
-	uint64_t sum = 0;
-	for (size_t i = 0; i < k; ++i) {
-		sum += powers_of_two[i];
-	}
-	printf("mu : %lu\n", mu);
-	printf("Mean of the exponents : %lu\n", sum / k);
-	printf("Difference |mu - mean| : %llu\n",
-		   mu > sum / k ? mu - sum / k : sum / k - mu);
+	// uint64_t sum = 0;
+	// for (size_t i = 0; i < k; ++i) {
+	// 	sum += powers_of_two[i];
+	// }
+	// printf("mu : %llu\n", mu);
+	// printf("Mean of the exponents : %lu\n", sum / k);
+	// printf("Difference |mu - mean| : %llu\n",
+	// 	   mu > sum / k ? mu - sum / k : sum / k - mu);
 	// Choosing the exponents in the set of jumps as powers of two works fine in
 	// principal in the sense that the theoretically predicted running times are
 	// almost met. Choosing the exponents uniformly at random from the interval
@@ -423,7 +458,7 @@ int main(int argc, char **argv) {
 	// xoshiro256starstar_random_set(seed);
 
 	// lambda_method();
-	lambda_method_simultaneous();
+	// lambda_method_simultaneous();
 
 	return 0;
 }
