@@ -175,7 +175,7 @@ void fill_exponents(uint64_t *ej, num128 *gexpej) {
  */
 uint64_t get_exponent_for_subset(uint64_t *ej, num128 *gexpej, num128 x,
 								 num128 *gej) {
-	uint64_t j = (x.t[0] % k);
+	uint64_t j = (x.s % k);
 	*gej = gexpej[j];
 	return ej[j];
 }
@@ -187,7 +187,7 @@ uint64_t get_exponent_for_subset(uint64_t *ej, num128 *gexpej, num128 x,
  * @param x
  * @return bool, true if x is a distinguished element, false otherwise
  */
-bool is_distinguished(num128 x) { return (x.t[0] % q) == 0; }
+bool is_distinguished(num128 x) { return (x.s % q) == 0; }
 
 /**
  * @brief Add a trap (x, exponent) in the traps_list of a kangaroo
